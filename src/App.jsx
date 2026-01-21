@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import PlaceholderPage from './pages/Placeholder';
 import ModelDetail from './pages/ModelDetail';
+import DesignPage from './pages/Design';
 
 function App() {
   return (
@@ -12,6 +13,9 @@ function App() {
 
         {/* Model Detail Page */}
         <Route path="/model/:id" element={<ModelDetail />} />
+
+        {/* Design Page */}
+        <Route path="/design" element={<DesignPage />} />
 
         {/* Portfolio & About */}
         <Route path="/portfolio" element={<PlaceholderPage title="Our Portfolio" description="Explore our extensive collection of 3D printing projects across various industries. From intricate medical models to stunning art pieces." />} />

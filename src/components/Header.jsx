@@ -25,6 +25,8 @@ const Header = () => {
     { name: 'Reverse Engineering', description: 'Digital replication services', icon: <Copy size={20} />, path: '/services/reverse-engineering' },
   ];
 
+
+
   const industries = [
     { name: 'Healthcare', description: 'Medical-grade solutions', icon: <Heart size={20} />, path: '/industries/healthcare' },
     { name: 'Art & Sculpture', description: 'Creative masterpieces', icon: <Palette size={20} />, path: '/industries/art-sculpture' },
@@ -71,8 +73,8 @@ const Header = () => {
               gap: '0.4rem',
               padding: '0.6rem 1rem',
               borderRadius: '10px',
-              color: activeDropdown === 'services' ? '#70e4de' : '#fff',
-              background: activeDropdown === 'services' ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
+              color: activeDropdown === 'services' || location.pathname.startsWith('/services') ? '#70e4de' : '#fff',
+              background: activeDropdown === 'services' || location.pathname.startsWith('/services') ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
               transition: 'all 0.3s ease',
               fontSize: '0.95rem',
               fontWeight: 500
@@ -138,6 +140,25 @@ const Header = () => {
             </AnimatePresence>
           </div>
 
+          {/* Design Link */}
+          <Link to="/design" style={{
+            padding: '0.6rem 1rem',
+            borderRadius: '10px',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            transition: 'all 0.3s ease',
+            color: location.pathname === '/design' ? '#70e4de' : '#fff',
+            background: location.pathname === '/design' ? 'rgba(112, 228, 222, 0.1)' : 'transparent'
+          }} onMouseEnter={e => {
+            e.currentTarget.style.color = '#70e4de';
+            e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
+          }} onMouseLeave={e => {
+            if (location.pathname !== '/design') {
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}>Design</Link>
+
           {/* Industries Dropdown */}
           <div
             style={{ position: 'relative' }}
@@ -150,8 +171,8 @@ const Header = () => {
               gap: '0.4rem',
               padding: '0.6rem 1rem',
               borderRadius: '10px',
-              color: activeDropdown === 'industries' ? '#70e4de' : '#fff',
-              background: activeDropdown === 'industries' ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
+              color: activeDropdown === 'industries' || location.pathname.startsWith('/industries') ? '#70e4de' : '#fff',
+              background: activeDropdown === 'industries' || location.pathname.startsWith('/industries') ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
               transition: 'all 0.3s ease',
               fontSize: '0.95rem',
               fontWeight: 500
@@ -222,13 +243,17 @@ const Header = () => {
             borderRadius: '10px',
             fontSize: '0.95rem',
             fontWeight: 500,
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            color: location.pathname === '/portfolio' ? '#70e4de' : '#fff',
+            background: location.pathname === '/portfolio' ? 'rgba(112, 228, 222, 0.1)' : 'transparent'
           }} onMouseEnter={e => {
             e.currentTarget.style.color = '#70e4de';
             e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
           }} onMouseLeave={e => {
-            e.currentTarget.style.color = '#fff';
-            e.currentTarget.style.background = 'transparent';
+            if (location.pathname !== '/portfolio') {
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.background = 'transparent';
+            }
           }}>Portfolio</Link>
 
           <Link to="/about" style={{
@@ -236,13 +261,17 @@ const Header = () => {
             borderRadius: '10px',
             fontSize: '0.95rem',
             fontWeight: 500,
-            transition: 'all 0.3s ease'
+            transition: 'all 0.3s ease',
+            color: location.pathname === '/about' ? '#70e4de' : '#fff',
+            background: location.pathname === '/about' ? 'rgba(112, 228, 222, 0.1)' : 'transparent'
           }} onMouseEnter={e => {
             e.currentTarget.style.color = '#70e4de';
             e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
           }} onMouseLeave={e => {
-            e.currentTarget.style.color = '#fff';
-            e.currentTarget.style.background = 'transparent';
+            if (location.pathname !== '/about') {
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.background = 'transparent';
+            }
           }}>About</Link>
 
           <Link to="/contact" className="btn-primary" style={{
@@ -301,6 +330,7 @@ const Header = () => {
                   </Link>
                 ))}
               </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8a8a9a', letterSpacing: '0.1em', marginBottom: '0.75rem', display: 'block' }}>INDUSTRIES</span>
                 {industries.map(item => (
@@ -317,6 +347,7 @@ const Header = () => {
                   </Link>
                 ))}
               </div>
+              <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Design</Link>
               <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Portfolio</Link>
               <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>About Us</Link>
               <Link to="/contact" className="btn-primary" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', padding: '1rem' }}>Contact Us</Link>
