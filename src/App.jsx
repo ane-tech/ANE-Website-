@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import PlaceholderPage from './pages/Placeholder';
 import ModelDetail from './pages/ModelDetail';
+import Payment from './pages/Payment';
+import Cart from './pages/Cart';
+import Favorites from './pages/Favorites';
 import DesignPage from './pages/Design';
 
 function App() {
@@ -10,6 +13,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+
+        {/* Purchase & Checkout */}
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/favorites" element={<Favorites />} />
 
         {/* Model Detail Page */}
         <Route path="/model/:id" element={<ModelDetail />} />
