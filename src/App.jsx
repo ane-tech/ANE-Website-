@@ -4,6 +4,8 @@ import Home from './pages/Home';
 import PlaceholderPage from './pages/Placeholder';
 import ModelDetail from './pages/ModelDetail';
 import DesignPage from './pages/Design';
+import Portfolio from './pages/Portfolio';
+import ProjectDetail from './components/ProjectDetail';
 
 function App() {
   return (
@@ -17,8 +19,10 @@ function App() {
         {/* Design Page */}
         <Route path="/design" element={<DesignPage />} />
 
-        {/* Portfolio & About */}
-        <Route path="/portfolio" element={<PlaceholderPage title="Our Portfolio" description="Explore our extensive collection of 3D printing projects across various industries. From intricate medical models to stunning art pieces." />} />
+        {/* Portfolio Routes */}
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/portfolio/:id" element={<ProjectDetail />} />
+
         <Route path="/about" element={<PlaceholderPage title="About ANE" description="Learn about our journey in revolutionizing additive manufacturing and our commitment to pushing the boundaries of what's possible with 3D printing." />} />
         <Route path="/contact" element={<PlaceholderPage title="Get in Touch" description="Ready to bring your ideas to life? Contact our team for a consultation and discover how ANE can transform your concepts into reality." />} />
 
