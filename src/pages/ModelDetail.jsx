@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowRight,
+    ArrowLeft,
     Download,
     Check,
     ShieldCheck,
@@ -165,6 +166,32 @@ const ModelDetail = () => {
                 }} />
 
                 <div className="container">
+                    <button
+                        onClick={() => {
+                            if (location.state?.from === '/account') {
+                                navigate('/account', { state: { activeTab: location.state.activeTab } });
+                            } else {
+                                navigate(-1);
+                            }
+                        }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            color: 'var(--text-dim)',
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            marginBottom: '2rem',
+                            transition: 'color 0.3s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#fff'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-dim)'}
+                    >
+                        <ArrowLeft size={18} />
+                        Back to {location.state?.from === '/account' ? 'Favourites' : 'Gallery'}
+                    </button>
                     <div className="detail-grid">
 
                         {/* LEFT COLUMN: Visuals */}

@@ -12,10 +12,15 @@ import ProjectDetail from './components/ProjectDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Account from './pages/Account';
+import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton';
+
 
 function App() {
   return (
     <Router>
+      <ScrollToTop />
+      <ScrollToTopButton />
       <Routes>
         <Route path="/" element={<Home />} />
 
