@@ -152,7 +152,7 @@ const Hero = () => {
                         textAlign: 'center'
                     }}>
                         {[
-                            { value: '500+', label: 'Projects Completed', sub: 'Since 2018' },
+                            { value: '150+', label: 'Projects Completed', sub: 'Since 2025' },
                             { value: '0.01mm', label: 'Precision Accuracy', sub: 'Industry Leading' },
                             { value: '24h', label: 'Rapid Turnaround', sub: 'Express Service' }
                         ].map((stat, i) => (
