@@ -1,0 +1,59 @@
+[
+    {
+        "id": 1,
+        "title": "Anatomical Heart Model",
+        "industry": "Healthcare",
+        "description": "A life-size anatomical heart for surgical planning.",
+        "year": 2025,
+        "featured": true,
+        "tags": [
+            "FDM",
+            "PLA",
+            "Medical"
+        ],
+        "image": "/src/assets/portfolio/heart.png",
+        "gallery": [
+            "/src/assets/portfolio/heart.png",
+            "/src/assets/portfolio/heart.png"
+        ],
+        "details": "Used for pre-surgical planning at XYZ Hospital. Enabled surgeons to visualize complex anatomy and plan procedures more effectively. The model was printed using high-resolution FDM technology with biocompatible PLA material."
+    },
+    {
+        "id": 2,
+        "title": "Bionic Prosthetic Arm",
+        "industry": "Healthcare",
+        "description": "Custom-fitted bionic arm with myoelectric sensors.",
+        "year": 2024,
+        "featured": true,
+        "tags": [
+            "SLA",
+            "Resin",
+            "Robotics"
+        ],
+        "image": "/src/assets/portfolio/prosthetic.png",
+        "gallery": [
+            "/src/assets/portfolio/prosthetic.png",
+            "/src/assets/portfolio/prosthetic.png"
+        ],
+        "details": "A fully functional prosthetic arm designed for a patient with transradial amputation. Features lightweight lattice structure for breathability and integrated mounting points for myoelectric sensors."
+    },
+    {
+        "id": 3,
+        "title": "V8 Engine Prototype",
+        "industry": "Automotive",
+        "description": "1:4 scale functional V8 engine block for design validation.",
+        "year": 2024,
+        "featured": false,
+        "tags": [
+            "SLS",
+            "Nylon",
+            "Engineering"
+        ],
+        "image": "/src/assets/portfolio/engine.png",
+        "gallery": [
+            "/src/assets/portfolio/engine.png",
+            "/src/assets/portfolio/engine.png"
+        ],
+        "details": "Rapid prototyping of a V8 engine block to validate cooling channels and assembly tolerances. Printed in Nylon 12 using SLS technology for high durability and thermal resistance."
+    }
+]

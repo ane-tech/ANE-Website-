@@ -7,6 +7,8 @@ import Payment from './pages/Payment';
 import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
 import DesignPage from './pages/Design';
+import Portfolio from './pages/Portfolio';
+import ProjectDetail from './components/ProjectDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Account from './pages/Account';
@@ -28,8 +30,10 @@ function App() {
         {/* Design Page */}
         <Route path="/design" element={<DesignPage />} />
 
+        {/* Portfolio Routes */}
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/portfolio/:id" element={<ProjectDetail />} />
         {/* Portfolio & About */}
-        <Route path="/portfolio" element={<PlaceholderPage title="Our Portfolio" description="Explore our extensive collection of 3D printing projects across various industries. From intricate medical models to stunning art pieces." />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/account" element={<Account />} />
