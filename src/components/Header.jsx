@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronDown, Menu, X, Cpu, Heart, Palette, GraduationCap, Box, Layers, Copy, Sparkles } from 'lucide-react';
+import { ChevronDown, Menu, X, Cpu, Heart, Palette, GraduationCap, Box, Layers, Copy, Sparkles, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = () => {
@@ -279,6 +279,33 @@ const Header = () => {
             padding: '0.7rem 1.5rem',
             fontSize: '0.9rem'
           }}>Contact Us</Link>
+
+          {/* Account Icon Button */}
+          <Link to="/account" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginLeft: '0.75rem',
+            width: '42px',
+            height: '42px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: location.pathname === '/account' ? '#70e4de' : '#fff',
+            transition: 'all 0.3s ease'
+          }} onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
+            e.currentTarget.style.borderColor = 'rgba(112, 228, 222, 0.3)';
+            e.currentTarget.style.color = '#70e4de';
+          }} onMouseLeave={e => {
+            if (location.pathname !== '/account') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.color = '#fff';
+            }
+          }}>
+            <User size={20} />
+          </Link>
         </nav>
 
         {/* Mobile Toggle */}
@@ -350,6 +377,17 @@ const Header = () => {
               <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Design</Link>
               <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Portfolio</Link>
               <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>About Us</Link>
+              <Link to="/account" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.75rem 0',
+                fontSize: '1rem',
+                fontWeight: 500,
+                color: location.pathname === '/account' ? '#70e4de' : '#fff'
+              }}>
+                <User size={20} color="#70e4de" /> Account
+              </Link>
               <Link to="/contact" className="btn-primary" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', padding: '1rem' }}>Contact Us</Link>
             </div>
           </motion.div>

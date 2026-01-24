@@ -7,6 +7,9 @@ import Payment from './pages/Payment';
 import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
 import DesignPage from './pages/Design';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import Account from './pages/Account';
 
 function App() {
   return (
@@ -27,8 +30,9 @@ function App() {
 
         {/* Portfolio & About */}
         <Route path="/portfolio" element={<PlaceholderPage title="Our Portfolio" description="Explore our extensive collection of 3D printing projects across various industries. From intricate medical models to stunning art pieces." />} />
-        <Route path="/about" element={<PlaceholderPage title="About ANE" description="Learn about our journey in revolutionizing additive manufacturing and our commitment to pushing the boundaries of what's possible with 3D printing." />} />
-        <Route path="/contact" element={<PlaceholderPage title="Get in Touch" description="Ready to bring your ideas to life? Contact our team for a consultation and discover how ANE can transform your concepts into reality." />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/account" element={<Account />} />
 
         {/* Industry Routes */}
         <Route path="/industries/healthcare" element={<PlaceholderPage title="Healthcare Solutions" description="Precision medical models, custom prosthetics, surgical guides, and anatomical replicas engineered for healthcare professionals." />} />
