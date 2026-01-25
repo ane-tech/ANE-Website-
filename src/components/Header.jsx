@@ -64,7 +64,7 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="desktop-nav">
           {/* Services Dropdown */}
-          <div
+          {/* <div
             style={{ position: 'relative' }}
             onMouseEnter={() => setActiveDropdown('services')}
             onMouseLeave={() => setActiveDropdown(null)}
@@ -140,7 +140,7 @@ const Header = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </div> */}
 
           {/* Design Link */}
           <Link to="/design" style={{

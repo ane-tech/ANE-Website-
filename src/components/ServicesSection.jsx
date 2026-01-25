@@ -36,16 +36,6 @@ const ServicesSection = ({ isFullPage = false, service = null }) => {
             image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
             gradient: 'linear-gradient(135deg, #70e4de 0%, #4db6b0 100%)',
             features: isFullPage ? ['3D Scanning', 'Precision Modeling', 'Legacy Component Support', 'Exact Replication'] : null
-        },
-        {
-            title: 'Art & Sculpture',
-            description: 'Transform digital art into stunning physical masterpieces with intricate details and premium finishes.',
-            fullDescription: 'Transform digital art into stunning physical masterpieces with intricate details and premium finishes. Our high-resolution printing technology captures every detail of your sculpture, creating museum-quality artwork.',
-            icon: <GraduationCap size={isFullPage ? 32 : 28} />,
-            path: '/industries/art-sculpture',
-            image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800',
-            gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            features: isFullPage ? ['Ultra High Resolution', 'Premium Finishes', 'Full Color Support', 'Large Format Capability'] : null
         }
     ];
 
@@ -322,7 +312,7 @@ const ServicesSection = ({ isFullPage = false, service = null }) => {
                                                 transition: 'gap 0.3s ease',
                                                 marginTop: isFullPage && item.features ? 'auto' : '0'
                                             }} className="card-link">
-                                                {isFullPage ? 'Learn More' : 'Explore Solutions'}
+                                                {isFullPage ? `Let's Discuss` : 'Explore Solutions'}
                                                 <ArrowUpRight size={18} style={{ transition: 'transform 0.3s ease' }} className="arrow-icon" />
                                             </div>
                                         </div>
