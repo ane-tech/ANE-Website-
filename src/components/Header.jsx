@@ -80,7 +80,7 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="desktop-nav">
           {/* Services Dropdown */}
-          <div
+          {/* <div
             style={{ position: 'relative' }}
             onMouseEnter={() => setActiveDropdown('services')}
             onMouseLeave={() => setActiveDropdown(null)}
@@ -156,7 +156,7 @@ const Header = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </div> */}
 
           {/* Design Link */}
           <Link to="/design" style={{
@@ -273,6 +273,24 @@ const Header = () => {
               e.currentTarget.style.background = 'transparent';
             }
           }}>Portfolio</Link>
+
+          <Link to="/services" style={{
+            padding: '0.6rem 1rem',
+            borderRadius: '10px',
+            fontSize: '0.95rem',
+            fontWeight: 500,
+            transition: 'all 0.3s ease',
+            color: location.pathname === '/services' ? '#70e4de' : '#fff',
+            background: location.pathname === '/services' ? 'rgba(112, 228, 222, 0.1)' : 'transparent'
+          }} onMouseEnter={e => {
+            e.currentTarget.style.color = '#70e4de';
+            e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
+          }} onMouseLeave={e => {
+            if (location.pathname !== '/services') {
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.background = 'transparent';
+            }
+          }}>Services</Link>
 
           <Link to="/about" style={{
             padding: '0.6rem 1rem',
@@ -414,6 +432,7 @@ const Header = () => {
               </div>
               <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Design</Link>
               <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Portfolio</Link>
+              <Link to="/services" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Services</Link>
               <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>About Us</Link>
               <Link to={user ? "/account" : "/login"} style={{
                 display: 'flex',

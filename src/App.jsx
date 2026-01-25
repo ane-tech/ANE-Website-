@@ -12,7 +12,7 @@ import ProjectDetail from './components/ProjectDetail';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Account from './pages/Account';
-import Login from './pages/Login';
+import ServicesSection from './components/ServicesSection';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 
@@ -40,14 +40,14 @@ function App() {
           {/* Design Page */}
           <Route path="/design" element={<DesignPage />} />
 
-          {/* Portfolio Routes */}
-          <Route path="/portfolio" element={<Portfolio />} />
-          <Route path="/portfolio/:id" element={<ProjectDetail />} />
-          {/* Portfolio & About */}
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/login" element={<Login />} />
+        {/* Portfolio Routes */}
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/portfolio/:id" element={<ProjectDetail />} />
+        {/* Portfolio & About */}
+        <Route path="/about" element={<About />} />
+        <Route path="/services" element={<ServicesSection isFullPage={true} />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/account" element={<Account />} />
 
           {/* Industry Routes */}
           <Route path="/industries/healthcare" element={<PlaceholderPage title="Healthcare Solutions" description="Precision medical models, custom prosthetics, surgical guides, and anatomical replicas engineered for healthcare professionals." />} />
@@ -55,14 +55,14 @@ function App() {
           <Route path="/industries/education" element={<PlaceholderPage title="Educational Solutions" description="Interactive learning models, scientific demonstrations, and educational kits designed to enhance hands-on learning experiences." />} />
           <Route path="/industries/electronics" element={<PlaceholderPage title="Electronics Prototyping" description="Rapid prototyping of enclosures, heat sinks, custom components, and functional prototypes for the electronics industry." />} />
 
-          {/* Service Routes */}
-          <Route path="/services/prototyping" element={<PlaceholderPage title="Rapid Prototyping" description="Transform your concepts into tangible prototypes within 24 hours. Perfect for design validation and iterative development." />} />
-          <Route path="/services/scalable-manufacturing" element={<PlaceholderPage title="Scalable Manufacturing" description="From prototype to production. Our scalable solutions grow with your needs, maintaining quality at every volume." />} />
-          <Route path="/services/reverse-engineering" element={<PlaceholderPage title="Reverse Engineering" description="Digitize existing parts and create precise replicas. Perfect for legacy components and discontinued products." />} />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
+        {/* Service Detail Routes */}
+        <Route path="/services/prototyping" element={<ServicesSection isFullPage={true} service="prototyping" />} />
+        <Route path="/services/scalable-manufacturing" element={<ServicesSection isFullPage={true} service="scalable-manufacturing" />} />
+        <Route path="/services/reverse-engineering" element={<ServicesSection isFullPage={true} service="reverse-engineering" />} />
+      </Routes>
+    </Router>
+</AuthProvider>
+);
 }
 
 export default App;
