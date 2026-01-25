@@ -1,0 +1,78 @@
+[
+    {
+        "id": 101,
+        "title": "Bio-Titanium Spinal Implant",
+        "industry": "Healthcare",
+        "description": "Custom patient-specific spinal cage with trabecular structure for enhanced osseointegration.",
+        "year": 2025,
+        "featured": true,
+        "tags": [
+            "DMLS",
+            "Titanium",
+            "Medical"
+        ],
+        "image": "/src/assets/industry/healthcare.png",
+        "gallery": [
+            "/src/assets/industry/healthcare.png",
+            "/src/assets/industry/healthcare.png"
+        ],
+        "details": "This spinal implant features a porosity gradient designed to match human bone density, promoting faster healing and integration. Manufactured using DMLS technology with Grade 23 Titanium."
+    },
+    {
+        "id": 102,
+        "title": "Voronoi Golden Visage",
+        "industry": "Art & Sculpture",
+        "description": "Large-scale artistic installation exploring mathematical beauty through parametric design.",
+        "year": 2024,
+        "featured": false,
+        "tags": [
+            "FDM",
+            "Silk PLA",
+            "Art"
+        ],
+        "image": "/src/assets/industry/art.png",
+        "gallery": [
+            "/src/assets/industry/art.png",
+            "/src/assets/industry/art.png"
+        ],
+        "details": "A 2-meter tall sculpture printed in sections using Silk Gold PLA. The voronoi pattern minimizes material usage while maintaining structural integrity and creating stunning shadow plays."
+    },
+    {
+        "id": 103,
+        "title": "Interactive DNA Kit",
+        "industry": "Education",
+        "description": "Modular, magnetic molecular modeling kit for university-level biochemistry education.",
+        "year": 2025,
+        "featured": false,
+        "tags": [
+            "SLS",
+            "Nylon",
+            "Education"
+        ],
+        "image": "/src/assets/industry/education.png",
+        "gallery": [
+            "/src/assets/industry/education.png",
+            "/src/assets/industry/education.png"
+        ],
+        "details": "Designed to help students visualize complex molecular bonds. Parts are printed in durable Nylon 12 and click together with satisfying haptic feedback using embedded magnets."
+    },
+    {
+        "id": 104,
+        "title": "Drone Fuselage Prototype",
+        "industry": "Electronics",
+        "description": "Aerodynamic drone chassis optimized for weight and strength using carbon-fiber composites.",
+        "year": 2024,
+        "featured": true,
+        "tags": [
+            "FDM",
+            "Carbon Fiber",
+            "Aerospace"
+        ],
+        "image": "/src/assets/industry/electronics.png",
+        "gallery": [
+            "/src/assets/industry/electronics.png",
+            "/src/assets/industry/electronics.png"
+        ],
+        "details": "Rapid prototyping of a racing drone frame. The carbon-fiber reinforced nylon creates an incredibly stiff yet lightweight structure, perfect for high-speed flight maneuvers."
+    }
+]

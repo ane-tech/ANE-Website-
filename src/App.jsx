@@ -9,14 +9,13 @@ import Favorites from './pages/Favorites';
 import DesignPage from './pages/Design';
 import Portfolio from './pages/Portfolio';
 import ProjectDetail from './components/ProjectDetail';
+import IndustryPage from './pages/IndustryPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Account from './pages/Account';
 import ServicesSection from './components/ServicesSection';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
-
-
 import { AuthProvider } from './context/AuthContext';
 
 
@@ -40,29 +39,26 @@ function App() {
           {/* Design Page */}
           <Route path="/design" element={<DesignPage />} />
 
-        {/* Portfolio Routes */}
-        <Route path="/portfolio" element={<Portfolio />} />
-        <Route path="/portfolio/:id" element={<ProjectDetail />} />
-        {/* Portfolio & About */}
-        <Route path="/about" element={<About />} />
-        <Route path="/services" element={<ServicesSection isFullPage={true} />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/account" element={<Account />} />
+          {/* Portfolio Routes */}
+          <Route path="/portfolio" element={<Portfolio />} />
+          <Route path="/portfolio/:id" element={<ProjectDetail />} />
+          {/* Portfolio & About */}
+          <Route path="/about" element={<About />} />
+          <Route path="/services" element={<ServicesSection isFullPage={true} />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/account" element={<Account />} />
 
           {/* Industry Routes */}
-          <Route path="/industries/healthcare" element={<PlaceholderPage title="Healthcare Solutions" description="Precision medical models, custom prosthetics, surgical guides, and anatomical replicas engineered for healthcare professionals." />} />
-          <Route path="/industries/art-sculpture" element={<PlaceholderPage title="Art & Sculpture" description="Transform digital art into physical masterpieces. We specialize in museum-quality reproductions and contemporary art pieces." />} />
-          <Route path="/industries/education" element={<PlaceholderPage title="Educational Solutions" description="Interactive learning models, scientific demonstrations, and educational kits designed to enhance hands-on learning experiences." />} />
-          <Route path="/industries/electronics" element={<PlaceholderPage title="Electronics Prototyping" description="Rapid prototyping of enclosures, heat sinks, custom components, and functional prototypes for the electronics industry." />} />
+          <Route path="/industries/:industryType" element={<IndustryPage />} />
 
-        {/* Service Detail Routes */}
-        <Route path="/services/prototyping" element={<ServicesSection isFullPage={true} service="prototyping" />} />
-        <Route path="/services/scalable-manufacturing" element={<ServicesSection isFullPage={true} service="scalable-manufacturing" />} />
-        <Route path="/services/reverse-engineering" element={<ServicesSection isFullPage={true} service="reverse-engineering" />} />
-      </Routes>
-    </Router>
-</AuthProvider>
-);
+          {/* Service Detail Routes */}
+          <Route path="/services/prototyping" element={<ServicesSection isFullPage={true} service="prototyping" />} />
+          <Route path="/services/scalable-manufacturing" element={<ServicesSection isFullPage={true} service="scalable-manufacturing" />} />
+          <Route path="/services/reverse-engineering" element={<ServicesSection isFullPage={true} service="reverse-engineering" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
 }
 
 export default App;
