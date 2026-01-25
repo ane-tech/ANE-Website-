@@ -61,7 +61,8 @@ function App() {
         <Route path="/services/reverse-engineering" element={<ServicesSection isFullPage={true} service="reverse-engineering" />} />
       </Routes>
     </Router>
-  );
+</AuthProvider>
+);
 }
 
 export default App;
