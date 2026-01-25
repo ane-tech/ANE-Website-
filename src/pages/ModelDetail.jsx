@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import LoginModal from '../components/LoginModal';
+import { useAuth } from '../context/AuthContext';
 
 const ModelDetail = () => {
     const { id } = useParams();
@@ -32,8 +34,10 @@ const ModelDetail = () => {
     const [isWishlisted, setIsWishlisted] = useState(false);
     const [quantity, setQuantity] = useState(0);
     const [showFullView, setShowFullView] = useState(false);
-    const [showShareMenu, setShowShareMenu] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+
+    const { user } = useAuth();
 
     const primaryTeal = '#70e4de';
 
@@ -83,6 +87,10 @@ const ModelDetail = () => {
     };
 
     const toggleWishlist = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         let updatedFavorites;
         if (isWishlisted) {
@@ -94,29 +102,17 @@ const ModelDetail = () => {
         setIsWishlisted(!isWishlisted);
     };
 
-    const handleShare = (platform) => {
+    const handleShare = () => {
         const url = window.location.href;
         const text = `Check out this amazing 3D model: ${displayModel.name}`;
 
-        switch (platform) {
-            case 'twitter':
-                window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
-                break;
-            case 'whatsapp':
-                window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
-                break;
-            case 'copy':
-                navigator.clipboard.writeText(url);
-                setCopied(true);
-                setTimeout(() => setCopied(false), 2000);
-                break;
-            case 'native':
-                if (navigator.share) {
-                    navigator.share({ title: displayModel.name, text, url });
-                }
-                break;
-            default:
-                break;
+        if (navigator.share) {
+            navigator.share({ title: displayModel.name, text, url })
+                .catch((error) => console.log('Error sharing', error));
+        } else {
+            navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         }
     };
 
@@ -142,6 +138,10 @@ const ModelDetail = () => {
     ];
 
     const handleAddToCart = () => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
         if (quantity === 0) updateCart(1);
     };
 
@@ -166,32 +166,6 @@ const ModelDetail = () => {
                 }} />
 
                 <div className="container">
-                    <button
-                        onClick={() => {
-                            if (location.state?.from === '/account') {
-                                navigate('/account', { state: { activeTab: location.state.activeTab } });
-                            } else {
-                                navigate(-1);
-                            }
-                        }}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            color: 'var(--text-dim)',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            marginBottom: '2rem',
-                            transition: 'color 0.3s'
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-dim)'}
-                    >
-                        <ArrowLeft size={18} />
-                        Back to {location.state?.from === '/account' ? 'Favourites' : 'Gallery'}
-                    </button>
                     <div className="detail-grid">
 
                         {/* LEFT COLUMN: Visuals */}
@@ -234,43 +208,42 @@ const ModelDetail = () => {
                             </motion.div>
 
                             <div className="side-interactions" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', position: 'relative' }}>
-                                <button className="circle-btn" onClick={() => setShowShareMenu(!showShareMenu)}>
-                                    <Share2 size={20} />
+                                <button
+                                    className="circle-btn"
+                                    onClick={handleShare}
+                                    style={{
+                                        position: 'relative',
+                                        borderColor: copied ? primaryTeal : 'rgba(255,255,255,0.08)',
+                                        color: copied ? primaryTeal : '#fff'
+                                    }}
+                                >
+                                    {copied ? <Check size={20} /> : <Share2 size={20} />}
+                                    <AnimatePresence>
+                                        {copied && (
+                                            <motion.span
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: '100%',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    background: 'rgba(112, 228, 222, 0.9)',
+                                                    color: '#000',
+                                                    padding: '4px 12px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 700,
+                                                    marginBottom: '10px',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                LINK COPIED
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
                                 </button>
-
-                                <AnimatePresence>
-                                    {showShareMenu && (
-                                        <motion.div
-                                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                                            style={{
-                                                position: 'absolute',
-                                                bottom: '70px',
-                                                left: 0,
-                                                background: 'rgba(20, 20, 25, 0.95)',
-                                                backdropFilter: 'blur(20px)',
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                borderRadius: '16px',
-                                                padding: '0.75rem',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                gap: '0.5rem',
-                                                zIndex: 100,
-                                                boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
-                                            }}
-                                        >
-                                            <button className="share-menu-item" onClick={() => { handleShare('twitter'); setShowShareMenu(false); }}>Twitter</button>
-                                            <button className="share-menu-item" onClick={() => { handleShare('whatsapp'); setShowShareMenu(false); }}>WhatsApp</button>
-                                            <button className="share-menu-item" onClick={() => { handleShare('copy'); setShowShareMenu(false); }}>
-                                                {copied ? 'Copied!' : 'Copy Link'}
-                                            </button>
-                                            {navigator.share && (
-                                                <button className="share-menu-item" onClick={() => { handleShare('native'); setShowShareMenu(false); }}>More Options...</button>
-                                            )}
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
 
                                 <button
                                     className="circle-btn"
@@ -523,6 +496,11 @@ const ModelDetail = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+            />
 
             <Footer />
 

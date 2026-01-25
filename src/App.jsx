@@ -17,24 +17,28 @@ import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 
 
+import { AuthProvider } from './context/AuthContext';
+
+
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <ScrollToTopButton />
-      <Routes>
-        <Route path="/" element={<Home />} />
+    <AuthProvider>
+      <Router>
+        <ScrollToTop />
+        <ScrollToTopButton />
+        <Routes>
+          <Route path="/" element={<Home />} />
 
-        {/* Purchase & Checkout */}
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route path="/favorites" element={<Favorites />} />
+          {/* Purchase & Checkout */}
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route path="/favorites" element={<Favorites />} />
 
-        {/* Model Detail Page */}
-        <Route path="/model/:id" element={<ModelDetail />} />
+          {/* Model Detail Page */}
+          <Route path="/model/:id" element={<ModelDetail />} />
 
-        {/* Design Page */}
-        <Route path="/design" element={<DesignPage />} />
+          {/* Design Page */}
+          <Route path="/design" element={<DesignPage />} />
 
         {/* Portfolio Routes */}
         <Route path="/portfolio" element={<Portfolio />} />
@@ -45,11 +49,11 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/account" element={<Account />} />
 
-        {/* Industry Routes */}
-        <Route path="/industries/healthcare" element={<PlaceholderPage title="Healthcare Solutions" description="Precision medical models, custom prosthetics, surgical guides, and anatomical replicas engineered for healthcare professionals." />} />
-        <Route path="/industries/art-sculpture" element={<PlaceholderPage title="Art & Sculpture" description="Transform digital art into physical masterpieces. We specialize in museum-quality reproductions and contemporary art pieces." />} />
-        <Route path="/industries/education" element={<PlaceholderPage title="Educational Solutions" description="Interactive learning models, scientific demonstrations, and educational kits designed to enhance hands-on learning experiences." />} />
-        <Route path="/industries/electronics" element={<PlaceholderPage title="Electronics Prototyping" description="Rapid prototyping of enclosures, heat sinks, custom components, and functional prototypes for the electronics industry." />} />
+          {/* Industry Routes */}
+          <Route path="/industries/healthcare" element={<PlaceholderPage title="Healthcare Solutions" description="Precision medical models, custom prosthetics, surgical guides, and anatomical replicas engineered for healthcare professionals." />} />
+          <Route path="/industries/art-sculpture" element={<PlaceholderPage title="Art & Sculpture" description="Transform digital art into physical masterpieces. We specialize in museum-quality reproductions and contemporary art pieces." />} />
+          <Route path="/industries/education" element={<PlaceholderPage title="Educational Solutions" description="Interactive learning models, scientific demonstrations, and educational kits designed to enhance hands-on learning experiences." />} />
+          <Route path="/industries/electronics" element={<PlaceholderPage title="Electronics Prototyping" description="Rapid prototyping of enclosures, heat sinks, custom components, and functional prototypes for the electronics industry." />} />
 
         {/* Service Detail Routes */}
         <Route path="/services/prototyping" element={<ServicesSection isFullPage={true} service="prototyping" />} />

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X, Cpu, Heart, Palette, GraduationCap, Box, Layers, Copy, Sparkles, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -299,7 +301,7 @@ const Header = () => {
           }}>Contact Us</Link>
 
           {/* Account Icon Button */}
-          <Link to="/account" style={{
+          <Link to={user ? "/account" : "/login"} style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -309,20 +311,25 @@ const Header = () => {
             borderRadius: '50%',
             background: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
-            color: location.pathname === '/account' ? '#70e4de' : '#fff',
-            transition: 'all 0.3s ease'
+            color: (location.pathname === '/account' || location.pathname === '/login') ? '#70e4de' : '#fff',
+            transition: 'all 0.3s ease',
+            overflow: 'hidden'
           }} onMouseEnter={e => {
             e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
             e.currentTarget.style.borderColor = 'rgba(112, 228, 222, 0.3)';
             e.currentTarget.style.color = '#70e4de';
           }} onMouseLeave={e => {
-            if (location.pathname !== '/account') {
+            if (location.pathname !== '/account' && location.pathname !== '/login') {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
               e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
               e.currentTarget.style.color = '#fff';
             }
           }}>
-            <User size={20} />
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <User size={20} />
+            )}
           </Link>
         </nav>
 
@@ -396,16 +403,21 @@ const Header = () => {
               <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Portfolio</Link>
               <Link to="/services" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Services</Link>
               <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>About Us</Link>
-              <Link to="/account" style={{
+              <Link to={user ? "/account" : "/login"} style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
                 padding: '0.75rem 0',
                 fontSize: '1rem',
                 fontWeight: 500,
-                color: location.pathname === '/account' ? '#70e4de' : '#fff'
+                color: (location.pathname === '/account' || location.pathname === '/login') ? '#70e4de' : '#fff'
               }}>
-                <User size={20} color="#70e4de" /> Account
+                {user?.photoURL ? (
+                  <img src={user.photoURL} alt="Profile" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <User size={20} color="#70e4de" />
+                )}
+                {user ? "Account" : "Login"}
               </Link>
               <Link to="/contact" className="btn-primary" style={{ display: 'block', textAlign: 'center', marginTop: '1rem', padding: '1rem' }}>Contact Us</Link>
             </div>

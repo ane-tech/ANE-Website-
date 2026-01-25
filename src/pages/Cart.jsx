@@ -4,6 +4,8 @@ import Footer from '../components/Footer';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, Trash2, ArrowRight, CreditCard, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import LoginModal from '../components/LoginModal';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -11,6 +13,8 @@ const Cart = () => {
 
     // Mock cart data
     const [cartItems, setCartItems] = useState([]);
+    const [showLoginModal, setShowLoginModal] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -166,7 +170,13 @@ const Cart = () => {
                                     </div>
 
                                     <button
-                                        onClick={() => navigate('/payment')}
+                                        onClick={() => {
+                                            if (!user) {
+                                                setShowLoginModal(true);
+                                            } else {
+                                                navigate('/payment');
+                                            }
+                                        }}
                                         style={{
                                             width: '100%',
                                             padding: '1.5rem',
@@ -201,6 +211,10 @@ const Cart = () => {
                     </div>
                 </div>
             </main>
+            <LoginModal
+                isOpen={showLoginModal}
+                onClose={() => setShowLoginModal(false)}
+            />
             <Footer />
         </div>
     );

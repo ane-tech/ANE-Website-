@@ -4,13 +4,19 @@ import { Trash2, ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
 const Favorites = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [favorites, setFavorites] = useState([]);
     const primaryTeal = '#70e4de';
 
     useEffect(() => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
         const storedFavorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         setFavorites(storedFavorites);
         window.scrollTo(0, 0);

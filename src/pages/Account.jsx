@@ -23,10 +23,19 @@ import {
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 const Account = () => {
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        }
+    }, [user, navigate]);
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'profile');
     const [isEditing, setIsEditing] = useState(false);
     const [phoneError, setPhoneError] = useState('');
@@ -45,26 +54,27 @@ const Account = () => {
         setFavouriteItems(prev => prev.filter(item => item.id !== id));
     };
     const [profileData, setProfileData] = useState({
-        name: "Sourav Sharma",
-        email: "sourav@ane.tech",
-        phone: "9876543210", // Store only 10 digits
-        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"]
+        name: user?.displayName || "New User",
+        email: user?.email || "",
+        phone: "Not Set", // Can be updated by user
+        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"],
+        avatar: user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.displayName || 'user'}`
     });
 
     const userData = {
         name: profileData.name,
         email: profileData.email,
         phone: profileData.phone,
-        memberSince: "January 2024",
-        tier: "Enterprise Designer",
+        memberSince: user?.metadata?.creationTime ? new Date(user.metadata.creationTime).getFullYear() : "2025",
+        tier: "Standard Designer",
         status: "Active",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${profileData.name}`,
+        avatar: profileData.avatar,
         stats: {
-            orders: 12,
+            orders: 0,
             favourites: favouriteItems.length,
-            credits: 1250,
-            storage: "1.2 GB / 5 GB",
-            prints: 3
+            credits: 0,
+            storage: "0 GB / 5 GB",
+            prints: 0
         }
     };
 
@@ -88,10 +98,49 @@ const Account = () => {
         { id: 'address', label: 'My Addresses', icon: <MapPin size={20} /> },
     ];
 
-    const recentOrders = [
-        { id: '#ANE-8821', date: 'Oct 24, 2025', status: 'Delivered', amount: '$149.00', item: 'Custom Drone Chassis' },
-        { id: '#ANE-7712', date: 'Sep 12, 2025', status: 'In Transit', amount: '$85.50', item: 'Prototyping Kit V2' },
-    ];
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [recentOrders, setRecentOrders] = useState([
+        {
+            id: '#ANE-8821',
+            date: 'Oct 24, 2025',
+            status: 'Delivered',
+            amount: '₹28,500',
+            items: [
+                { name: 'Custom Drone Chassis', qty: 1, price: '₹12,450' },
+                { name: 'Precision Gear Set', qty: 2, price: '₹4,500' },
+                { name: 'Tough Resin V4', qty: 1, price: '₹3,550' },
+                { name: 'Aerospace Carbon Fiber', qty: 1, price: '₹3,500' }
+            ]
+        },
+        {
+            id: '#ANE-7712',
+            date: 'Sep 12, 2025',
+            status: 'In Transit',
+            amount: '₹8,550',
+            items: [{ name: 'Prototyping Kit V2', qty: 2, price: '₹4,275' }]
+        },
+        {
+            id: '#ANE-6654',
+            date: 'Aug 30, 2025',
+            status: 'Delivered',
+            amount: '₹4,200',
+            items: [{ name: 'Precision Gears (Set of 4)', qty: 4, price: '₹1,050' }]
+        },
+        {
+            id: '#ANE-5543',
+            date: 'Aug 15, 2025',
+            status: 'Delivered',
+            amount: '₹1,800',
+            items: [{ name: 'Industrial Resin (Clear)', qty: 1, price: '₹1,800' }]
+        },
+        {
+            id: '#ANE-4432',
+            date: 'Jul 22, 2025',
+            status: 'Cancelled',
+            amount: '₹3,500',
+            items: [{ name: 'Flexible TPU Filament', qty: 2, price: '₹1,750' }]
+        },
+    ]);
 
     const [cartItems, setCartItems] = useState([
         { id: 1, name: 'Precision Gear Set', price: 45.00, qty: 2, img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=100' },
@@ -287,9 +336,25 @@ const Account = () => {
                                     </label>
                                 </div>
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                    <div>
-                                        <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1, marginBottom: '0.25rem' }}>{userData.name}</h1>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '0.75rem',
+                                    minWidth: 0, // Prevents flex child overflow
+                                    flex: 1
+                                }}>
+                                    <div style={{ width: '100%' }}>
+                                        <h1 style={{
+                                            fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                                            fontWeight: 900,
+                                            letterSpacing: '-0.03em',
+                                            lineHeight: 1.1,
+                                            marginBottom: '0.25rem',
+                                            wordBreak: 'break-word',
+                                            overflowWrap: 'break-word'
+                                        }}>
+                                            {userData.name}
+                                        </h1>
                                         <div style={{ color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.05em' }}>Member Since 2025</div>
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
@@ -309,7 +374,7 @@ const Account = () => {
                                     { label: 'Saved Designs', val: favouriteItems.length, icon: <Heart size={20} />, tab: 'favourites' },
                                     { label: 'Cart Items', val: cartItems.length, icon: <ShoppingCart size={20} />, tab: 'cart' },
                                     { label: 'Total Orders', val: userData.stats.orders, icon: <Package size={20} />, tab: 'orders' },
-                                    { label: 'Loyalty Points', val: '2,450', icon: <Zap size={20} />, tab: 'profile' }
+                                    { label: 'Success Rating', val: '100%', icon: <ShieldCheck size={20} />, tab: 'profile' }
                                 ].map((stat, i) => (
                                     <motion.button
                                         key={stat.label}
@@ -379,18 +444,24 @@ const Account = () => {
 
                                 <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', margin: '1rem 0' }} />
 
-                                <button style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '1rem',
-                                    padding: '1.25rem',
-                                    borderRadius: '16px',
-                                    color: '#ff4d4d',
-                                    textAlign: 'left',
-                                    transition: 'all 0.3s ease',
-                                    fontSize: '1rem',
-                                    fontWeight: 500
-                                }}>
+                                <button
+                                    onClick={logout}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '1rem',
+                                        padding: '1.25rem',
+                                        borderRadius: '16px',
+                                        color: '#ff4d4d',
+                                        textAlign: 'left',
+                                        transition: 'all 0.3s ease',
+                                        fontSize: '1rem',
+                                        fontWeight: 500,
+                                        width: '100%',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}>
                                     <LogOut size={20} />
                                     Sign Out
                                 </button>
@@ -578,24 +649,49 @@ const Account = () => {
                                             <Package size={24} color="var(--primary)" /> Order History
                                         </h2>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        <div style={{
+                                            maxHeight: '350px',
+                                            overflowY: 'auto',
+                                            paddingRight: '1rem',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: '1rem',
+                                            scrollbarWidth: 'thin',
+                                            scrollbarColor: 'var(--primary) transparent'
+                                        }} className="custom-scrollbar">
                                             {recentOrders.map(order => (
-                                                <div key={order.id} style={{
-                                                    padding: '1.5rem',
-                                                    background: 'rgba(255, 255, 255, 0.02)',
-                                                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                                                    borderRadius: '16px',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'space-between'
-                                                }}>
+                                                <div
+                                                    key={order.id}
+                                                    onClick={() => setSelectedOrder(order)}
+                                                    style={{
+                                                        padding: '1.5rem',
+                                                        background: 'rgba(255, 255, 255, 0.02)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.05)',
+                                                        borderRadius: '16px',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.3s ease'
+                                                    }}
+                                                    onMouseEnter={e => {
+                                                        e.currentTarget.style.background = 'rgba(112, 228, 222, 0.05)';
+                                                        e.currentTarget.style.borderColor = 'rgba(112, 228, 222, 0.2)';
+                                                    }}
+                                                    onMouseLeave={e => {
+                                                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                                                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                                                    }}
+                                                >
                                                     <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                                                         <div style={{ width: '50px', height: '50px', background: 'rgba(112, 228, 222, 0.1)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
                                                             <Package size={24} />
                                                         </div>
                                                         <div>
-                                                            <div style={{ fontWeight: 600, fontSize: '1rem' }}>{order.item}</div>
-                                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>Order {order.id} • {order.date}</div>
+                                                            <div style={{ fontWeight: 600, fontSize: '1rem' }}>
+                                                                {order.items.length > 1 ? `${order.items[0].name} +${order.items.length - 1} more` : order.items[0].name}
+                                                            </div>
+                                                            <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>Order {order.id} • {order.items.length} Project Items</div>
                                                         </div>
                                                     </div>
                                                     <div style={{ textAlign: 'right' }}>
@@ -631,7 +727,7 @@ const Account = () => {
                                                 <div
                                                     className="custom-scrollbar"
                                                     style={{
-                                                        maxHeight: '400px',
+                                                        maxHeight: '320px',
                                                         overflowY: 'auto',
                                                         display: 'flex',
                                                         flexDirection: 'column',
@@ -958,10 +1054,10 @@ const Account = () => {
                         </section>
                     </div>
                 </div>
-            </main>
+            </main >
 
             {/* Image Fitting Modal */}
-            <AnimatePresence>
+            < AnimatePresence >
                 {showCropModal && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -1076,10 +1172,114 @@ const Account = () => {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+                {/* Order Detail Modal */}
+                <AnimatePresence>
+                    {selectedOrder && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0,0,0,0.85)',
+                                zIndex: 1100,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                padding: '2rem',
+                                backdropFilter: 'blur(10px)'
+                            }}
+                            onClick={() => setSelectedOrder(null)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, y: 30 }}
+                                animate={{ scale: 1, y: 0 }}
+                                style={{
+                                    background: '#0a0a0f',
+                                    border: '1px solid rgba(112, 228, 222, 0.2)',
+                                    borderRadius: '24px',
+                                    padding: '1.5rem',
+                                    width: '90%',
+                                    maxWidth: '450px',
+                                    maxHeight: '85vh',
+                                    overflowY: 'auto',
+                                    position: 'relative',
+                                    boxShadow: '0 25px 50px rgba(0,0,0,0.5)',
+                                    scrollbarWidth: 'none'
+                                }}
+                                onClick={e => e.stopPropagation()}
+                                className="custom-scrollbar"
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+                                    <div>
+                                        <div style={{ color: 'var(--primary)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.3rem' }}>Order Confirmation</div>
+                                        <h2 style={{ fontSize: '1.4rem', fontWeight: 900 }}>{selectedOrder.id}</h2>
+                                        <p style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>Placed on {selectedOrder.date}</p>
+                                    </div>
+                                    <div style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '100px',
+                                        background: selectedOrder.status === 'Delivered' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.1)',
+                                        color: selectedOrder.status === 'Delivered' ? '#4caf50' : '#ff9800',
+                                        fontWeight: 700,
+                                        fontSize: '0.75rem'
+                                    }}>{selectedOrder.status}</div>
+                                </div>
+
+                                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '20px', padding: '1.25rem', marginBottom: '1.5rem' }}>
+                                    <div style={{ maxHeight: '180px', overflowY: 'auto', paddingRight: '0.5rem', scrollbarWidth: 'thin' }}>
+                                        {selectedOrder.items.map((item, idx) => (
+                                            <div key={idx} style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                marginBottom: '1rem',
+                                                borderBottom: idx !== selectedOrder.items.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                                                paddingBottom: idx !== selectedOrder.items.length - 1 ? '1rem' : 0
+                                            }}>
+                                                <div>
+                                                    <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.2rem' }}>{item.name}</div>
+                                                    <div style={{ color: 'var(--text-dim)', fontSize: '0.8rem' }}>Precision Part x{item.qty}</div>
+                                                </div>
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{item.price}</div>
+                                                    <div style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>Unit Price</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.25rem', marginTop: '1rem' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+                                            <span>Items ({selectedOrder.items.length})</span>
+                                            <span style={{ color: '#fff' }}>{selectedOrder.amount}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+                                            <span>Precision Engineering</span>
+                                            <span style={{ color: '#4caf50' }}>FREE</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.1rem', fontWeight: 800, marginTop: '0.4rem' }}>
+                                            <span>Total</span>
+                                            <span style={{ color: 'var(--primary)' }}>{selectedOrder.amount}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setSelectedOrder(null)}
+                                    style={{ width: '100%', padding: '1rem', borderRadius: '12px', background: 'var(--primary)', color: '#000', border: 'none', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.01)'}
+                                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                                >Dismiss Overlay</button>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+            </AnimatePresence >
 
             <Footer />
-        </div>
+        </div >
     );
 };
 
