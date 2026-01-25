@@ -234,7 +234,7 @@ const ServicesSection = ({ isFullPage = false, service = null }) => {
                                         <div style={{
                                             position: 'absolute',
                                             inset: 0,
-                                            background: isFullPage 
+                                            background: isFullPage
                                                 ? 'linear-gradient(180deg, transparent 0%, rgba(5,5,8,0.8) 70%, rgba(5,5,8,1) 100%)'
                                                 : 'linear-gradient(180deg, transparent 0%, rgba(5,5,8,0.9) 60%, rgba(5,5,8,1) 100%)'
                                         }} />

@@ -79,85 +79,6 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="desktop-nav">
-          {/* Services Dropdown */}
-          {/* <div
-            style={{ position: 'relative' }}
-            onMouseEnter={() => setActiveDropdown('services')}
-            onMouseLeave={() => setActiveDropdown(null)}
-          >
-            <button style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              padding: '0.6rem 1rem',
-              borderRadius: '10px',
-              color: activeDropdown === 'services' || location.pathname.startsWith('/services') ? '#70e4de' : '#fff',
-              background: activeDropdown === 'services' || location.pathname.startsWith('/services') ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
-              transition: 'all 0.3s ease',
-              fontSize: '0.95rem',
-              fontWeight: 500
-            }}>
-              Services
-              <ChevronDown size={16} style={{
-                transition: 'transform 0.3s ease',
-                transform: activeDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0)'
-              }} />
-            </button>
-            <AnimatePresence>
-              {activeDropdown === 'services' && (
-                <motion.div
-                  variants={dropdownVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 10px)',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '320px',
-                    background: 'rgba(13, 13, 18, 0.95)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '16px',
-                    padding: '0.75rem',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
-                  }}
-                >
-                  {services.map((item) => (
-                    <Link key={item.name} to={item.path} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      padding: '1rem',
-                      borderRadius: '12px',
-                      transition: 'all 0.2s ease'
-                    }} onMouseEnter={e => {
-                      e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
-                    }} onMouseLeave={e => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}>
-                      <span style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '12px',
-                        background: 'rgba(112, 228, 222, 0.15)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#70e4de'
-                      }}>{item.icon}</span>
-                      <div>
-                        <span style={{ fontWeight: 600, display: 'block', fontSize: '0.95rem' }}>{item.name}</span>
-                        <span style={{ fontSize: '0.8rem', color: '#8a8a9a' }}>{item.description}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div> */}
-
           {/* Design Link */}
           <Link to="/design" style={{
             padding: '0.6rem 1rem',
@@ -256,6 +177,85 @@ const Header = () => {
             </AnimatePresence>
           </div>
 
+          {/* Services Dropdown */}
+          <div
+            style={{ position: 'relative' }}
+            onMouseEnter={() => setActiveDropdown('services')}
+            onMouseLeave={() => setActiveDropdown(null)}
+          >
+            <button style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.6rem 1rem',
+              borderRadius: '10px',
+              color: activeDropdown === 'services' || location.pathname.startsWith('/services') ? '#70e4de' : '#fff',
+              background: activeDropdown === 'services' || location.pathname.startsWith('/services') ? 'rgba(112, 228, 222, 0.1)' : 'transparent',
+              transition: 'all 0.3s ease',
+              fontSize: '0.95rem',
+              fontWeight: 500
+            }}>
+              Services
+              <ChevronDown size={16} style={{
+                transition: 'transform 0.3s ease',
+                transform: activeDropdown === 'services' ? 'rotate(180deg)' : 'rotate(0)'
+              }} />
+            </button>
+            <AnimatePresence>
+              {activeDropdown === 'services' && (
+                <motion.div
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 10px)',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '320px',
+                    background: 'rgba(13, 13, 18, 0.95)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '16px',
+                    padding: '0.75rem',
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)'
+                  }}
+                >
+                  {services.map((item) => (
+                    <Link key={item.name} to={item.path} style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '1rem',
+                      borderRadius: '12px',
+                      transition: 'all 0.2s ease'
+                    }} onMouseEnter={e => {
+                      e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
+                    }} onMouseLeave={e => {
+                      e.currentTarget.style.background = 'transparent';
+                    }}>
+                      <span style={{
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
+                        background: 'rgba(112, 228, 222, 0.15)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#70e4de'
+                      }}>{item.icon}</span>
+                      <div>
+                        <span style={{ fontWeight: 600, display: 'block', fontSize: '0.95rem' }}>{item.name}</span>
+                        <span style={{ fontSize: '0.8rem', color: '#8a8a9a' }}>{item.description}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <Link to="/portfolio" style={{
             padding: '0.6rem 1rem',
             borderRadius: '10px',
@@ -273,24 +273,6 @@ const Header = () => {
               e.currentTarget.style.background = 'transparent';
             }
           }}>Portfolio</Link>
-
-          <Link to="/services" style={{
-            padding: '0.6rem 1rem',
-            borderRadius: '10px',
-            fontSize: '0.95rem',
-            fontWeight: 500,
-            transition: 'all 0.3s ease',
-            color: location.pathname === '/services' ? '#70e4de' : '#fff',
-            background: location.pathname === '/services' ? 'rgba(112, 228, 222, 0.1)' : 'transparent'
-          }} onMouseEnter={e => {
-            e.currentTarget.style.color = '#70e4de';
-            e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
-          }} onMouseLeave={e => {
-            if (location.pathname !== '/services') {
-              e.currentTarget.style.color = '#fff';
-              e.currentTarget.style.background = 'transparent';
-            }
-          }}>Services</Link>
 
           <Link to="/about" style={{
             padding: '0.6rem 1rem',
@@ -397,6 +379,25 @@ const Header = () => {
             }}
           >
             <div className="container" style={{ padding: '1.5rem 2rem' }}>
+              <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Design</Link>
+
+              <div style={{ margin: '1.5rem 0' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8a8a9a', letterSpacing: '0.1em', marginBottom: '0.75rem', display: 'block' }}>INDUSTRIES</span>
+                {industries.map(item => (
+                  <Link key={item.name} to={item.path} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem 0',
+                    borderBottom: '1px solid rgba(255,255,255,0.05)',
+                    fontSize: '1rem'
+                  }}>
+                    <span style={{ color: '#70e4de' }}>{item.icon}</span>
+                    {item.name}
+                  </Link>
+                ))}
+              </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8a8a9a', letterSpacing: '0.1em', marginBottom: '0.75rem', display: 'block' }}>SERVICES</span>
                 {services.map(item => (
@@ -414,26 +415,8 @@ const Header = () => {
                 ))}
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8a8a9a', letterSpacing: '0.1em', marginBottom: '0.75rem', display: 'block' }}>INDUSTRIES</span>
-                {industries.map(item => (
-                  <Link key={item.name} to={item.path} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    fontSize: '1rem'
-                  }}>
-                    <span style={{ color: '#70e4de' }}>{item.icon}</span>
-                    {item.name}
-                  </Link>
-                ))}
-              </div>
-              <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Design</Link>
-              <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Portfolio</Link>
-              <Link to="/services" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>Services</Link>
-              <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500 }}>About Us</Link>
+              <Link to="/portfolio" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>Portfolio</Link>
+              <Link to="/about" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>About Us</Link>
               <Link to={user ? "/account" : "/login"} style={{
                 display: 'flex',
                 alignItems: 'center',

@@ -12,7 +12,6 @@ const Home = () => {
             <Header />
             <main>
                 <Hero />
-                <ServicesSection />
                 <IndustrySection />
                 <ModelList />
             </main>
