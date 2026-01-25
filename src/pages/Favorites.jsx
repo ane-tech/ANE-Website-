@@ -4,12 +4,14 @@ import { Trash2, ShoppingCart, Heart, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ModelDetailOverlay from '../components/ModelDetailOverlay';
 import { useAuth } from '../context/AuthContext';
 
 const Favorites = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [favorites, setFavorites] = useState([]);
+    const [selectedModel, setSelectedModel] = useState(null);
     const primaryTeal = '#70e4de';
 
     useEffect(() => {
@@ -117,7 +119,7 @@ const Favorites = () => {
                                             </div>
 
                                             <button
-                                                onClick={() => navigate(`/model/${model.id}`, { state: { model } })}
+                                                onClick={() => setSelectedModel(model)}
                                                 style={{
                                                     width: '100%',
                                                     padding: '1.2rem',
@@ -175,6 +177,16 @@ const Favorites = () => {
                 </div>
             </main>
             <Footer />
+
+            {/* Model Detail Overlay */}
+            <AnimatePresence>
+                {selectedModel && (
+                    <ModelDetailOverlay
+                        model={selectedModel}
+                        onClose={() => setSelectedModel(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div>
     );
 };

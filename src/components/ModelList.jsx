@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Box, Search, Layers, ArrowUpRight, Sparkles, Download, Eye, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import ModelDetailOverlay from './ModelDetailOverlay';
 
 const ModelList = () => {
     const [models, setModels] = useState([]);
@@ -12,6 +12,7 @@ const ModelList = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [hoveredId, setHoveredId] = useState(null);
+    const [selectedModel, setSelectedModel] = useState(null);
     const searchRef = useRef(null);
     const loader = useRef(null);
 
@@ -367,165 +368,161 @@ const ModelList = () => {
                                     transition={{ duration: 0.3, delay: (idx % 12) * 0.02 }}
                                     onMouseEnter={() => setHoveredId(model.id)}
                                     onMouseLeave={() => setHoveredId(null)}
+                                    onClick={() => setSelectedModel(model)}
+                                    style={{ cursor: 'pointer' }}
                                 >
-                                    <Link
-                                        to={`/model/${model.id}`}
-                                        state={{ model }}
-                                        style={{ display: 'block' }}
+                                    <div
+                                        style={{
+                                            background: '#0a0a0f',
+                                            borderRadius: '28px',
+                                            overflow: 'hidden',
+                                            border: `1px solid ${hoveredId === model.id ? primaryTeal + '80' : primaryTeal + '30'}`,
+                                            transition: 'all 0.5s ease',
+                                            transform: hoveredId === model.id ? 'translateY(-10px)' : 'translateY(0)',
+                                            boxShadow: hoveredId === model.id
+                                                ? `0 30px 60px -12px ${primaryTeal}20`
+                                                : '0 10px 40px -20px rgba(0,0,0,0.5)',
+                                            aspectRatio: '3/4',
+                                            display: 'flex',
+                                            flexDirection: 'column'
+                                        }}
                                     >
-                                        <div
-                                            style={{
-                                                background: '#0a0a0f',
-                                                borderRadius: '28px',
-                                                overflow: 'hidden',
-                                                border: `1px solid ${hoveredId === model.id ? primaryTeal + '80' : primaryTeal + '30'}`,
-                                                transition: 'all 0.5s ease',
-                                                transform: hoveredId === model.id ? 'translateY(-10px)' : 'translateY(0)',
-                                                boxShadow: hoveredId === model.id
-                                                    ? `0 30px 60px -12px ${primaryTeal}20`
-                                                    : '0 10px 40px -20px rgba(0,0,0,0.5)',
-                                                aspectRatio: '3/4',
-                                                display: 'flex',
-                                                flexDirection: 'column'
-                                            }}
-                                        >
-                                            {/* Top Section: Full Image */}
-                                            <div style={{
-                                                flex: 1,
-                                                position: 'relative',
-                                                overflow: 'hidden'
-                                            }}>
-                                                <img
-                                                    src={model.image}
-                                                    alt={model.name}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: '100%',
-                                                        objectFit: 'cover',
-                                                        filter: isHovered ? 'brightness(0.9) saturate(1.2)' : 'brightness(0.85) saturate(1.1)',
-                                                        transition: 'all 0.6s ease',
-                                                        transform: isHovered ? 'scale(1.05)' : 'scale(1)'
-                                                    }}
-                                                />
+                                        {/* Top Section: Full Image */}
+                                        <div style={{
+                                            flex: 1,
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <img
+                                                src={model.image}
+                                                alt={model.name}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    filter: isHovered ? 'brightness(0.9) saturate(1.2)' : 'brightness(0.85) saturate(1.1)',
+                                                    transition: 'all 0.6s ease',
+                                                    transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+                                                }}
+                                            />
 
-                                                {/* Floating Price Tag */}
-                                                <div style={{
-                                                    position: 'absolute',
-                                                    top: '1.25rem',
-                                                    right: '1.25rem',
-                                                    padding: '0.6rem 1rem',
-                                                    background: 'rgba(5, 5, 8, 0.6)',
-                                                    backdropFilter: 'blur(12px)',
-                                                    border: `1px solid ${primaryTeal}40`,
-                                                    borderRadius: '12px',
-                                                    color: primaryTeal,
-                                                    fontSize: '1.2rem',
+                                            {/* Floating Price Tag */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '1.25rem',
+                                                right: '1.25rem',
+                                                padding: '0.6rem 1rem',
+                                                background: 'rgba(5, 5, 8, 0.6)',
+                                                backdropFilter: 'blur(12px)',
+                                                border: `1px solid ${primaryTeal}40`,
+                                                borderRadius: '12px',
+                                                color: primaryTeal,
+                                                fontSize: '1.2rem',
+                                                fontWeight: 800,
+                                                zIndex: 10,
+                                                boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                            }}>
+                                                ₹{model.price}
+                                            </div>
+                                        </div>
+
+                                        {/* Bottom Section: Info Panel */}
+                                        <div style={{
+                                            background: 'rgba(15, 15, 20, 0.95)',
+                                            backdropFilter: 'blur(20px)',
+                                            padding: '1.5rem',
+                                            borderTop: '1px solid rgba(255,255,255,0.05)',
+                                            position: 'relative'
+                                        }}>
+                                            {/* Category & Rating Row */}
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                marginBottom: '0.75rem'
+                                            }}>
+                                                <span style={{
+                                                    fontSize: '0.65rem',
                                                     fontWeight: 800,
-                                                    zIndex: 10,
-                                                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                                    color: primaryTeal,
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.05em',
+                                                    padding: '0.4rem 1rem',
+                                                    background: 'rgba(112,228,222,0.1)',
+                                                    border: `1px solid ${primaryTeal}30`,
+                                                    borderRadius: '50px',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center'
                                                 }}>
-                                                    ₹{model.price}
+                                                    {model.category}
+                                                </span>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.3rem',
+                                                    color: model.rating >= 4.5 ? '#22c55e' : model.rating >= 3.5 ? '#fbbf24' : '#ef4444',
+                                                    background: model.rating >= 4.5 ? 'rgba(34,197,94,0.1)' : model.rating >= 3.5 ? 'rgba(251,191,36,0.1)' : 'rgba(239,68,68,0.1)',
+                                                    padding: '0.3rem 0.6rem',
+                                                    borderRadius: '8px',
+                                                    border: `1px solid ${model.rating >= 4.5 ? 'rgba(34,197,94,0.2)' : model.rating >= 3.5 ? 'rgba(251,191,36,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700
+                                                }}>
+                                                    ★ {model.rating}
                                                 </div>
                                             </div>
 
-                                            {/* Bottom Section: Info Panel */}
-                                            <div style={{
-                                                background: 'rgba(15, 15, 20, 0.95)',
-                                                backdropFilter: 'blur(20px)',
-                                                padding: '1.5rem',
-                                                borderTop: '1px solid rgba(255,255,255,0.05)',
-                                                position: 'relative'
+                                            {/* Name */}
+                                            <h3 style={{
+                                                fontSize: '1.15rem',
+                                                fontWeight: 700,
+                                                color: '#fff',
+                                                lineHeight: 1.3,
+                                                fontFamily: "'Space Grotesk', sans-serif",
+                                                marginBottom: '1.5rem',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
                                             }}>
-                                                {/* Category & Rating Row */}
+                                                {model.name}
+                                            </h3>
+
+                                            {/* Expanded Content - Now Always Visible */}
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                paddingTop: '1rem',
+                                                borderTop: '1px solid rgba(255,255,255,0.05)'
+                                            }}>
                                                 <div style={{
                                                     display: 'flex',
-                                                    justifyContent: 'space-between',
                                                     alignItems: 'center',
-                                                    marginBottom: '0.75rem'
+                                                    gap: '0.5rem',
+                                                    color: '#8a8a9a',
+                                                    fontSize: '0.8rem'
                                                 }}>
-                                                    <span style={{
-                                                        fontSize: '0.65rem',
-                                                        fontWeight: 800,
-                                                        color: primaryTeal,
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.05em',
-                                                        padding: '0.4rem 1rem',
-                                                        background: 'rgba(112,228,222,0.1)',
-                                                        border: `1px solid ${primaryTeal}30`,
-                                                        borderRadius: '50px',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center'
-                                                    }}>
-                                                        {model.category}
-                                                    </span>
-                                                    <div style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.3rem',
-                                                        color: model.rating >= 4.5 ? '#22c55e' : model.rating >= 3.5 ? '#fbbf24' : '#ef4444',
-                                                        background: model.rating >= 4.5 ? 'rgba(34,197,94,0.1)' : model.rating >= 3.5 ? 'rgba(251,191,36,0.1)' : 'rgba(239,68,68,0.1)',
-                                                        padding: '0.3rem 0.6rem',
-                                                        borderRadius: '8px',
-                                                        border: `1px solid ${model.rating >= 4.5 ? 'rgba(34,197,94,0.2)' : model.rating >= 3.5 ? 'rgba(251,191,36,0.2)' : 'rgba(239,68,68,0.2)'}`,
-                                                        fontSize: '0.8rem',
-                                                        fontWeight: 700
-                                                    }}>
-                                                        ★ {model.rating}
-                                                    </div>
+                                                    <Download size={14} />
+                                                    {model.downloads.toLocaleString()} sales
                                                 </div>
 
-                                                {/* Name */}
-                                                <h3 style={{
-                                                    fontSize: '1.15rem',
-                                                    fontWeight: 700,
-                                                    color: '#fff',
-                                                    lineHeight: 1.3,
-                                                    fontFamily: "'Space Grotesk', sans-serif",
-                                                    marginBottom: '1.5rem',
-                                                    whiteSpace: 'nowrap',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis'
-                                                }}>
-                                                    {model.name}
-                                                </h3>
-
-                                                {/* Expanded Content - Now Always Visible */}
                                                 <div style={{
+                                                    padding: '0.5rem 1rem',
+                                                    background: isHovered ? '#fff' : primaryTeal,
+                                                    borderRadius: '10px',
+                                                    color: '#000',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700,
                                                     display: 'flex',
                                                     alignItems: 'center',
-                                                    justifyContent: 'space-between',
-                                                    paddingTop: '1rem',
-                                                    borderTop: '1px solid rgba(255,255,255,0.05)'
+                                                    gap: '0.4rem',
+                                                    transition: 'all 0.3s ease'
                                                 }}>
-                                                    <div style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.5rem',
-                                                        color: '#8a8a9a',
-                                                        fontSize: '0.8rem'
-                                                    }}>
-                                                        <Download size={14} />
-                                                        {model.downloads.toLocaleString()} sales
-                                                    </div>
-
-                                                    <div style={{
-                                                        padding: '0.5rem 1rem',
-                                                        background: isHovered ? '#fff' : primaryTeal,
-                                                        borderRadius: '10px',
-                                                        color: '#000',
-                                                        fontSize: '0.8rem',
-                                                        fontWeight: 700,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.4rem',
-                                                        transition: 'all 0.3s ease'
-                                                    }}>
-                                                        VIEW DETAILS <ArrowUpRight size={14} />
-                                                    </div>
+                                                    VIEW DETAILS <ArrowUpRight size={14} />
                                                 </div>
                                             </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 </motion.div>
                             );
                         })}
@@ -595,6 +592,16 @@ const ModelList = () => {
                     )}
                 </div>
             </div>
+
+            {/* Model Detail Overlay */}
+            <AnimatePresence>
+                {selectedModel && (
+                    <ModelDetailOverlay
+                        model={selectedModel}
+                        onClose={() => setSelectedModel(null)}
+                    />
+                )}
+            </AnimatePresence>
 
             <style>{`
                 .loader-ring {

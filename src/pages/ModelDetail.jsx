@@ -18,12 +18,12 @@ import {
     Plus,
     Minus,
     ShoppingCart,
-    X
+    X,
+    Cpu,
+    Layers,
+    Ruler,
+    Clock
 } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import LoginModal from '../components/LoginModal';
-import { useAuth } from '../context/AuthContext';
 
 const ModelDetail = () => {
     const { id } = useParams();
@@ -37,15 +37,13 @@ const ModelDetail = () => {
     const [copied, setCopied] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
 
-    const { user } = useAuth();
-
+    const user = { name: 'Demo User' }; // Mock user
     const primaryTeal = '#70e4de';
 
-    // Fallback if no model data passed
     const defaultModel = {
         id: id,
         name: 'Premium 3D Model',
-        price: 2500, // Adjusted for Rupees
+        price: 2500,
         category: 'General',
         downloads: 1000,
         rating: 4.8,
@@ -54,12 +52,10 @@ const ModelDetail = () => {
 
     const displayModel = model || defaultModel;
 
-    // Handle Wishlist persistence
     useEffect(() => {
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         setIsWishlisted(favorites.some(fav => fav.id === displayModel.id));
 
-        // Sync quantity from cart
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingItem = cart.find(item => item.id === displayModel.id);
         if (existingItem) {
@@ -116,18 +112,17 @@ const ModelDetail = () => {
         }
     };
 
-    // Scroll to top on mount
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
     const techSpecs = [
-        { label: 'Complexity', value: 'High Detail' },
-        { label: 'Recommended Infill', value: '15-20%' },
-        { label: 'Layer Height', value: '0.05mm - 0.2mm' },
-        { label: 'File Size', value: '45.2 MB' },
-        { label: 'Dimensions', value: '120 x 85 x 140 mm' },
-        { label: 'Print Time', value: '~14 Hours' }
+        { icon: <Cpu size={20} />, label: 'Complexity', value: 'High Detail', color: '#70e4de' },
+        { icon: <Layers size={20} />, label: 'Infill', value: '15-20%', color: '#a855f7' },
+        { icon: <Ruler size={20} />, label: 'Layer Height', value: '0.05-0.2mm', color: '#fbbf24' },
+        { icon: <FileText size={20} />, label: 'File Size', value: '45.2 MB', color: '#ef4444' },
+        { icon: <Ruler size={20} />, label: 'Dimensions', value: '120×85×140mm', color: '#3b82f6' },
+        { icon: <Clock size={20} />, label: 'Print Time', value: '~14 Hours', color: '#10b981' }
     ];
 
     const mockGallery = [
@@ -147,14 +142,11 @@ const ModelDetail = () => {
 
     return (
         <div style={{ minHeight: '100vh', background: '#050508', color: '#fff', overflowX: 'hidden' }}>
-            <Header />
-
             <section style={{
                 paddingTop: '160px',
                 paddingBottom: '120px',
                 position: 'relative'
             }}>
-                {/* Visual Background Elements */}
                 <div style={{
                     position: 'absolute',
                     top: '0',
@@ -192,7 +184,6 @@ const ModelDetail = () => {
                                     </motion.div>
                                 </AnimatePresence>
 
-                                {/* Gallery Navigation */}
                                 <div className="gallery-thumbs">
                                     {mockGallery.map((img, i) => (
                                         <motion.div
@@ -255,7 +246,7 @@ const ModelDetail = () => {
                             </div>
                         </div>
 
-                        {/* RIGHT COLUMN: Information / Bento Dashboard */}
+                        {/* RIGHT COLUMN: Information */}
                         <div className="info-column">
                             <motion.div
                                 initial={{ opacity: 0, x: 30 }}
@@ -278,97 +269,136 @@ const ModelDetail = () => {
                                 </p>
 
                                 <div className="integrated-dashboard">
-                                    {/* Primary Action Card */}
-                                    <div className="dashboard-card primary">
-                                        <div className="card-inner">
-                                            <div className="price-info">
+                                    {/* Price & Action Section - Now at Top */}
+                                    <div className="price-action-section" style={{
+                                        padding: '2.5rem 2rem 2.5rem 3.5rem',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: quantity > 0 ? '1.5rem' : '0'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                            <div className="price-container" style={{ marginRight: 'auto' }}>
+                                                <div className="price-label">Price</div>
                                                 <div className="price-tag">
                                                     <span className="sym">₹</span>
                                                     <span className="val">{displayModel.price}</span>
                                                 </div>
                                             </div>
 
-                                            <div className="action-stack">
+                                            <div className="action-container" style={{ marginLeft: 'auto' }}>
                                                 {quantity === 0 ? (
                                                     <motion.button
-                                                        whileHover={{ scale: 1.02, background: '#fff' }}
+                                                        whileHover={{ scale: 1.02 }}
                                                         whileTap={{ scale: 0.98 }}
-                                                        className="checkout-trigger"
+                                                        className="get-model-btn"
                                                         onClick={handleAddToCart}
                                                     >
                                                         <span>GET MODEL</span>
                                                         <ArrowRight size={18} />
                                                     </motion.button>
                                                 ) : (
-                                                    <div className="quantity-selector">
-                                                        <button onClick={() => updateCart(Math.max(0, quantity - 1))}><Minus size={18} /></button>
+                                                    <div className="quantity-selector-new">
+                                                        <button onClick={() => updateCart(Math.max(0, quantity - 1))}>
+                                                            <Minus size={18} />
+                                                        </button>
                                                         <span className="qty-val">{quantity}</span>
-                                                        <button onClick={() => updateCart(quantity + 1)}><Plus size={18} /></button>
+                                                        <button onClick={() => updateCart(quantity + 1)}>
+                                                            <Plus size={18} />
+                                                        </button>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
-                                        <AnimatePresence>
-                                            {quantity > 0 && (
-                                                <motion.button
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    exit={{ opacity: 0, y: 10 }}
-                                                    className="view-cart-btn"
-                                                    onClick={() => navigate('/cart')}
-                                                >
-                                                    <ShoppingCart size={18} />
-                                                    VIEW CART
-                                                </motion.button>
-                                            )}
-                                        </AnimatePresence>
+                                        {quantity > 0 && (
+                                            <motion.button
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                className="view-cart-btn-new"
+                                                onClick={() => navigate('/cart')}
+                                                style={{ width: '100%', justifyContent: 'center' }}
+                                            >
+                                                <ShoppingCart size={18} />
+                                                VIEW CART
+                                            </motion.button>
+                                        )}
                                     </div>
 
-                                    {/* Features Card - Redesigned to look more full */}
-                                    <div className="dashboard-card features">
-                                        <div className="card-label">INCLUDED ASSETS</div>
-                                        <div className="assets-grid-enhanced">
-                                            <div className="asset-card">
-                                                <div className="asset-icon-box"><FileText size={20} /></div>
-                                                <div className="asset-info-box">
-                                                    <span className="asset-title">High Res STLs</span>
-                                                    <span className="asset-subtitle">Precision Geometry</span>
-                                                </div>
-                                            </div>
-                                            <div className="asset-card">
-                                                <div className="asset-icon-box"><Settings size={20} /></div>
-                                                <div className="asset-info-box">
-                                                    <span className="asset-title">Step Files</span>
-                                                    <span className="asset-subtitle">Parametric Data</span>
-                                                </div>
-                                            </div>
-                                            <div className="asset-card">
-                                                <div className="asset-icon-box"><Check size={20} /></div>
-                                                <div className="asset-info-box">
-                                                    <span className="asset-title">Documentation</span>
-                                                    <span className="asset-subtitle">Print Guides</span>
-                                                </div>
-                                            </div>
+                                    {/* Redesigned Print Specifications */}
+                                    <div className="specs-section">
+                                        <div className="specs-header">
+                                            <Sparkles size={16} style={{ color: primaryTeal }} />
+                                            <span>PRINT SPECIFICATIONS</span>
+                                        </div>
+
+                                        <div className="specs-grid">
+                                            {techSpecs.map((spec, i) => (
+                                                <motion.div
+                                                    key={i}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: i * 0.1 }}
+                                                    className="spec-card"
+                                                    style={{ '--spec-color': spec.color }}
+                                                >
+                                                    <div className="spec-icon" style={{ color: spec.color }}>
+                                                        {spec.icon}
+                                                    </div>
+                                                    <div className="spec-content">
+                                                        <div className="spec-label">{spec.label}</div>
+                                                        <div className="spec-value">{spec.value}</div>
+                                                    </div>
+                                                    <div className="spec-glow" style={{ background: spec.color }}></div>
+                                                </motion.div>
+                                            ))}
                                         </div>
                                     </div>
 
-                                    {/* Technical Specs Card */}
-                                    <div className="dashboard-card technical">
-                                        <div className="card-label">PRINT SPECIFICATIONS</div>
-                                        <div className="specs-masonry">
-                                            {techSpecs.map((spec, i) => (
-                                                <div key={i} className="masonry-item">
-                                                    <span className="m-label">{spec.label}</span>
-                                                    <span className="m-val">{spec.value}</span>
-                                                </div>
+                                    {/* Technical Assets */}
+                                    <div className="assets-section">
+                                        <div className="specs-header">
+                                            <FileText size={16} style={{ color: primaryTeal }} />
+                                            <span>TECHNICAL ASSETS INCLUDED</span>
+                                        </div>
+                                        <div className="assets-bento-grid">
+                                            {[
+                                                { icon: <FileText size={22} />, title: "High Res STL", desc: "Optimized printing path", accent: "#70e4de", delay: 0 },
+                                                { icon: <Settings size={22} />, title: "STEP Files", desc: "Full parametric source", accent: "#a855f7", delay: 0.1 },
+                                                { icon: <Check size={22} />, title: "Print Guide", desc: "Validated settings", accent: "#fbbf24", delay: 0.2 }
+                                            ].map((asset, idx) => (
+                                                <motion.div
+                                                    key={idx}
+                                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                    transition={{ delay: asset.delay + 0.3, duration: 0.5, ease: "easeOut" }}
+                                                    whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                                                    className="asset-bento-card"
+                                                    style={{ '--accent': asset.accent }}
+                                                >
+                                                    <div className="holographic-shine"></div>
+                                                    <div className="asset-bento-content">
+                                                        <motion.div
+                                                            className="icon-bento-box"
+                                                            whileHover={{ scale: 1.1, rotate: 5 }}
+                                                        >
+                                                            {asset.icon}
+                                                            <div className="icon-bento-glow"></div>
+                                                        </motion.div>
+                                                        <div className="asset-bento-text">
+                                                            <h3>{asset.title}</h3>
+                                                            <p>{asset.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="quality-bar-container">
+                                                        <div className="quality-bar-fill" style={{ width: '100%', background: asset.accent }}></div>
+                                                    </div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     </div>
                                 </div>
                             </motion.div>
                         </div>
-
                     </div>
                 </div>
             </section>
@@ -497,13 +527,6 @@ const ModelDetail = () => {
                 )}
             </AnimatePresence>
 
-            <LoginModal
-                isOpen={showLoginModal}
-                onClose={() => setShowLoginModal(false)}
-            />
-
-            <Footer />
-
             <style>{`
                 .container {
                     max-width: 1400px;
@@ -602,26 +625,7 @@ const ModelDetail = () => {
                     transform: translateY(-2px);
                 }
 
-                .share-menu-item {
-                    padding: 0.8rem 1.5rem;
-                    background: transparent;
-                    border: none;
-                    color: #fff;
-                    font-size: 0.9rem;
-                    font-weight: 500;
-                    text-align: left;
-                    cursor: pointer;
-                    border-radius: 10px;
-                    transition: all 0.2s;
-                    white-space: nowrap;
-                }
-
-                .share-menu-item:hover {
-                    background: rgba(112, 228, 222, 0.1);
-                    color: ${primaryTeal};
-                }
-
-                /* Dashboard */
+                /* Header */
                 .header-meta {
                     display: flex;
                     align-items: center;
@@ -651,96 +655,115 @@ const ModelDetail = () => {
                 }
 
                 .model-name {
-                    font-size: clamp(2.5rem, 5vw, 3.5rem);
+                    font-size: clamp(2rem, 4vw, 2.75rem);
                     font-weight: 800;
                     font-family: 'Space Grotesk', sans-serif;
                     line-height: 1.1;
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 1rem;
                     letter-spacing: -0.04em;
                 }
 
                 .model-brief {
                     color: #8a8a9a;
-                    font-size: 1.1rem;
-                    line-height: 1.7;
-                    margin-bottom: 3.5rem;
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    margin-bottom: 2.5rem;
                 }
 
                 .integrated-dashboard {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 1.5rem;
-                }
-
-                .dashboard-card {
-                    background: rgba(255,255,255,0.02);
-                    border: 1px solid rgba(255,255,255,0.05);
-                    border-radius: 35px;
-                    padding: 2.25rem;
-                    transition: border-color 0.3s;
-                    position: relative;
                     display: flex;
                     flex-direction: column;
+                    gap: 2rem;
                 }
 
-                .dashboard-card.features, .dashboard-card.technical {
-                    align-items: center;
-                    text-align: center;
-                }
-
-                .dashboard-card:hover { border-color: rgba(112,228,222,0.25); }
-
-                .dashboard-card.primary {
-                    grid-column: span 2;
-                    background: linear-gradient(135deg, rgba(112, 228, 222, 0.08) 0%, rgba(255,255,255,0) 100%);
-                    padding: 2.5rem;
-                }
-
-                .card-inner {
+                /* Price & Action Section */
+                .price-action-section {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    gap: 3rem;
+                    background: linear-gradient(135deg, rgba(112, 228, 222, 0.08) 0%, rgba(255,255,255,0.02) 100%);
+                    border: 1px solid rgba(112, 228, 222, 0.15);
+                    border-radius: 30px;
+                    gap: 2rem;
+                }
+
+                .price-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+
+                .price-label {
+                    font-size: 0.7rem;
+                    font-weight: 800;
+                    color: #555566;
+                    letter-spacing: 0.15em;
+                    text-transform: uppercase;
                 }
 
                 .price-tag {
                     display: flex;
                     align-items: flex-start;
-                    gap: 0.2rem;
+                    gap: 0.3rem;
                     line-height: 1;
                 }
 
-                .price-tag .sym { font-size: 1.5rem; font-weight: 700; color: ${primaryTeal}; margin-top: 0.6rem; }
-                .price-tag .val { font-size: 4.5rem; font-weight: 800; font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.04em; }
+                .price-tag .sym {
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: ${primaryTeal};
+                    margin-top: 0.3rem;
+                }
 
-                .checkout-trigger {
-                    width: 280px;
-                    padding: 1.5rem;
+                .price-tag .val {
+                    font-size: 3.5rem;
+                    font-weight: 800;
+                    font-family: 'Space Grotesk', sans-serif;
+                    letter-spacing: -0.04em;
+                }
+
+                .action-container {
+                    display: flex;
+                    gap: 1rem;
+                    align-items: center;
+                }
+
+                .get-model-btn {
+                    padding: 1.4rem 3.5rem;
                     background: ${primaryTeal};
                     border: none;
                     border-radius: 20px;
                     color: #000;
                     font-weight: 800;
-                    font-size: 1rem;
+                    font-size: 1.05rem;
+                    letter-spacing: 0.08em;
                     display: flex;
                     align-items: center;
-                    justify-content: center;
                     gap: 1rem;
                     cursor: pointer;
-                    box-shadow: 0 20px 40px ${primaryTeal}25;
+                    box-shadow: 0 20px 40px ${primaryTeal}30;
+                    transition: all 0.3s ease;
+                    white-space: nowrap;
+                    flex-shrink: 0;
                 }
 
-                .quantity-selector {
+                .get-model-btn:hover {
+                    background: #fff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 25px 50px ${primaryTeal}40;
+                }
+
+                .quantity-selector-new {
                     display: flex;
                     align-items: center;
                     gap: 1.5rem;
                     background: rgba(255,255,255,0.05);
-                    padding: 0.75rem 1.5rem;
+                    padding: 0.9rem 1.8rem;
                     border-radius: 100px;
                     border: 1px solid rgba(255,255,255,0.1);
                 }
 
-                .quantity-selector button {
+                .quantity-selector-new button {
                     background: none;
                     border: none;
                     color: ${primaryTeal};
@@ -751,103 +774,294 @@ const ModelDetail = () => {
                     transition: all 0.2s;
                 }
 
-                .quantity-selector button:hover { transform: scale(1.2); }
+                .quantity-selector-new button:hover {
+                    transform: scale(1.2);
+                }
 
-                .qty-val { font-size: 1.25rem; font-weight: 800; color: #fff; min-width: 20px; text-align: center; }
+                .qty-val {
+                    font-size: 1.25rem;
+                    font-weight: 800;
+                    color: #fff;
+                    min-width: 30px;
+                    text-align: center;
+                }
 
-                .view-cart-btn {
-                    width: 100%;
-                    margin-top: 2rem;
-                    padding: 1.25rem;
-                    background: rgba(255,255,255,0.03);
-                    border: 1px solid rgba(255,255,255,0.08);
+                .view-cart-btn-new {
+                    padding: 1.25rem 2rem;
+                    background: rgba(255,255,255,0.05);
+                    border: 1px solid rgba(255,255,255,0.1);
                     border-radius: 18px;
                     color: #fff;
                     font-weight: 800;
-                    letter-spacing: 0.1em;
+                    font-size: 0.95rem;
+                    letter-spacing: 0.08em;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
-                    justify-content: center;
-                    gap: 1rem;
+                    gap: 0.8rem;
                     transition: all 0.3s;
+                    white-space: nowrap;
                 }
 
-                .view-cart-btn:hover { background: #fff; color: #000; border-color: #fff; }
-
-                .card-label {
-                    font-size: 0.7rem;
-                    font-weight: 900;
-                    color: #555566;
-                    letter-spacing: 0.15em;
-                    text-transform: uppercase;
-                    margin-bottom: 2rem;
+                .view-cart-btn-new:hover {
+                    background: #fff;
+                    color: #000;
+                    border-color: #fff;
                 }
 
-                /* Enhanced Assets Grid */
-                .assets-grid-enhanced {
+                /* Specs Section - New Design */
+                .specs-section {
                     display: flex;
                     flex-direction: column;
-                    gap: 1.25rem;
-                    width: 100%;
+                    gap: 1.5rem;
                 }
 
-                .asset-card {
+                .specs-header {
                     display: flex;
                     align-items: center;
-                    gap: 1.25rem;
-                    padding: 1rem;
-                    background: rgba(255,255,255,0.03);
-                    border-radius: 20px;
-                    border: 1px solid rgba(255,255,255,0.05);
-                    transition: all 0.3s;
+                    gap: 0.6rem;
+                    font-size: 0.75rem;
+                    font-weight: 800;
+                    color: #fff;
+                    letter-spacing: 0.15em;
+                    opacity: 0.7;
                 }
 
-                .asset-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(112, 228, 222, 0.2); }
+                .specs-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                    gap: 1.25rem;
+                }
 
-                .asset-icon-box {
+                .spec-card {
+                    position: relative;
+                    padding: 1.5rem;
+                    background: rgba(255,255,255,0.02);
+                    border: 1px solid rgba(255,255,255,0.05);
+                    border-radius: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    transition: all 0.4s ease;
+                    overflow: hidden;
+                }
+
+                .spec-card:hover {
+                    background: rgba(255,255,255,0.05);
+                    border-color: var(--spec-color);
+                    transform: translateY(-4px);
+                }
+
+                .spec-card:hover .spec-glow {
+                    opacity: 0.15;
+                }
+
+                .spec-icon {
                     width: 44px;
                     height: 44px;
-                    background: rgba(112, 228, 222, 0.1);
-                    color: ${primaryTeal};
-                    border-radius: 12px;
+                    border-radius: 14px;
+                    background: rgba(0,0,0,0.4);
+                    border: 1px solid rgba(255,255,255,0.1);
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    transition: all 0.3s ease;
                 }
 
-                .asset-info-box { display: flex; flex-direction: column; gap: 0.1rem; }
-                .asset-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
-                .asset-subtitle { font-size: 0.75rem; color: #6a6a7a; font-weight: 500; }
+                .spec-card:hover .spec-icon {
+                    background: var(--spec-color);
+                    color: #000 !important;
+                    transform: scale(1.1) rotate(5deg);
+                }
 
-                .specs-masonry {
+                .spec-content {
                     display: flex;
                     flex-direction: column;
-                    gap: 0.75rem;
-                    width: 100%;
+                    gap: 0.4rem;
                 }
 
-                .masonry-item { 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: space-between;
-                    gap: 1rem;
-                    padding-bottom: 0.75rem;
-                    border-bottom: 1px solid rgba(255,255,255,0.03);
+                .spec-label {
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                    color: rgba(255,255,255,0.5);
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
                 }
-                .m-label { font-size: 0.7rem; color: #555566; font-weight: 800; text-transform: uppercase; }
-                .m-val { font-size: 0.95rem; color: #fff; font-weight: 600; white-space: nowrap; }
+
+                .spec-value {
+                    font-size: 1.1rem;
+                    font-weight: 700;
+                    color: #fff;
+                    letter-spacing: -0.02em;
+                }
+
+                .spec-glow {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 3px;
+                    opacity: 0;
+                    transition: opacity 0.4s ease;
+                }
+
+                /* Assets Section */
+                .assets-section {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1.5rem;
+                }
+
+                .assets-bento-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 1.25rem;
+                }
+
+                .asset-bento-card {
+                    position: relative;
+                    padding: 1.5rem;
+                    border-radius: 24px;
+                    background: rgba(255, 255, 255, 0.02);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    backdrop-filter: blur(15px) saturate(160%);
+                    overflow: hidden;
+                    transition: border-color 0.4s ease, background 0.4s ease;
+                }
+
+                .asset-bento-card:hover {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-color: var(--accent);
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                }
+
+                .holographic-shine {
+                    position: absolute;
+                    top: -100%;
+                    left: -100%;
+                    width: 300%;
+                    height: 300%;
+                    background: linear-gradient(
+                        140deg,
+                        transparent 30%,
+                        rgba(255, 255, 255, 0.05) 45%,
+                        rgba(255, 255, 255, 0.1) 50%,
+                        rgba(255, 255, 255, 0.05) 55%,
+                        transparent 70%
+                    );
+                    transform: rotate(0deg);
+                    pointer-events: none;
+                    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+
+                .asset-bento-card:hover .holographic-shine {
+                    transform: rotate(25deg) translate(20%, 20%);
+                }
+
+                .asset-bento-content {
+                    position: relative;
+                    z-index: 2;
+                }
+
+                .icon-bento-box {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 16px;
+                    background: rgba(0, 0, 0, 0.5);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--accent);
+                    margin-bottom: 1.25rem;
+                    position: relative;
+                    transition: all 0.3s ease;
+                }
+
+                .asset-bento-card:hover .icon-bento-box {
+                    background: var(--accent);
+                    color: #000;
+                    border-color: var(--accent);
+                    box-shadow: 0 0 20px var(--accent);
+                }
+
+                .icon-bento-glow {
+                    position: absolute;
+                    inset: -2px;
+                    background: var(--accent);
+                    opacity: 0;
+                    filter: blur(8px);
+                    border-radius: 18px;
+                    transition: opacity 0.3s ease;
+                }
+
+                .asset-bento-card:hover .icon-bento-glow {
+                    opacity: 0.2;
+                }
+
+                .asset-bento-text h3 {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: #fff;
+                    margin-bottom: 0.4rem;
+                    letter-spacing: -0.01em;
+                }
+
+                .asset-bento-text p {
+                    font-size: 0.75rem;
+                    color: rgba(255, 255, 255, 0.4);
+                    line-height: 1.5;
+                    font-weight: 500;
+                }
+
+                .quality-bar-container {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 3px;
+                    background: rgba(255, 255, 255, 0.05);
+                }
+
+                .quality-bar-fill {
+                    height: 100%;
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+                }
+
+                .asset-bento-card:hover .quality-bar-fill {
+                    transform: scaleX(1);
+                }
 
                 @media (max-width: 1200px) {
-                    .price-tag .val { font-size: 3.5rem; }
-                    .checkout-trigger { width: 100%; }
-                    .card-inner { flex-direction: column; align-items: flex-start; gap: 2.5rem; }
+                    .price-tag .val { font-size: 3rem; }
                 }
 
                 @media (max-width: 768px) {
-                    .detail-grid { grid-template-columns: 1fr; gap: 4rem; }
-                    .integrated-dashboard { grid-template-columns: 1fr; }
-                    .dashboard-card.primary { grid-column: span 1; }
+                    .detail-grid { 
+                        grid-template-columns: 1fr; 
+                        gap: 4rem; 
+                    }
+                    
+                    .price-action-section {
+                        padding: 1.5rem 1.5rem 1.5rem 2rem !important;
+                        gap: 1rem;
+                    }
+
+                    .get-model-btn,
+                    .view-cart-btn-new {
+                        padding: 1rem 1.5rem;
+                        font-size: 0.9rem;
+                    }
+                    
+                    .specs-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+                    
+                    .assets-bento-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             `}</style>
         </div>

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ModelDetailOverlay from '../components/ModelDetailOverlay';
 import { useAuth } from '../context/AuthContext';
 
 const Account = () => {
@@ -44,15 +45,64 @@ const Account = () => {
     const [imgRotation, setImgRotation] = useState(0);
     const [cropPosition, setCropPosition] = useState({ x: 0, y: 0 });
     const imgRef = useRef(null);
-    const [favouriteItems, setFavouriteItems] = useState([
-        { id: 1, name: 'Precision Gear Set', price: 45.00, img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=100' },
-        { id: 2, name: 'Tough Resin V4', price: 89.99, img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=100' },
-        { id: 3, name: 'Custom Drone Chassis', price: 149.00, img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800' },
-        { id: 4, name: 'Prototyping Kit V2', price: 85.50, img: 'https://images.unsplash.com/photo-1563206767-5b18f21dae90?auto=format&fit=crop&q=80&w=600' }
-    ]);
+    const [favouriteItems, setFavouriteItems] = useState([]);
+    const [cartItems, setCartItems] = useState([]);
+    const [selectedModel, setSelectedModel] = useState(null);
+
+    useEffect(() => {
+        const loadSavedData = () => {
+            const defaultFavs = [
+                { id: 101, name: 'Precision Gear Set', price: 4500, category: 'Engineering', image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=600' },
+                { id: 102, name: 'Tough Resin V4', price: 8999, category: 'Medical', image: 'https://images.unsplash.com/photo-1579154235602-3c2cff46886e?auto=format&fit=crop&q=80&w=600' },
+                { id: 103, name: 'Custom Drone Chassis', price: 14900, category: 'Aerospace', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=800' },
+                { id: 104, name: 'Prototyping Kit V2', price: 8550, category: 'Industry', image: 'https://images.unsplash.com/photo-1563206767-5b18f21dae90?auto=format&fit=crop&q=80&w=600' },
+                { id: 105, name: 'Aerospace Carbon Fiber', price: 3500, category: 'Aerospace', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=600' },
+                { id: 106, name: 'Industrial PLA Red', price: 2950, category: 'Materials', image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=600' },
+                { id: 107, name: 'Detail Resin Clear', price: 7525, category: 'Art', image: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80&w=600' },
+                { id: 108, name: 'Bronze Infused Filament', price: 6800, category: 'Jewelry', image: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&q=80&w=600' }
+            ];
+
+            let storedFavs = JSON.parse(localStorage.getItem('favorites') || '[]');
+
+            if (storedFavs.length === 0) {
+                localStorage.setItem('favorites', JSON.stringify(defaultFavs));
+                storedFavs = defaultFavs;
+                window.dispatchEvent(new Event('wishlistUpdated'));
+            }
+
+            setFavouriteItems(storedFavs);
+
+            const storedCart = JSON.parse(localStorage.getItem('cart') || '[]');
+            setCartItems(storedCart.map(item => ({
+                ...item,
+                qty: item.quantity || 1,
+                img: item.image || item.img
+            })));
+        };
+
+
+        loadSavedData();
+        window.addEventListener('wishlistUpdated', loadSavedData);
+        window.addEventListener('cartUpdated', loadSavedData);
+        window.addEventListener('profileUpdate', () => {
+            setProfileData(prev => ({
+                ...prev,
+                avatar: localStorage.getItem(`avatar_${user?.uid}`) || user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.displayName || 'user'}`,
+                phone: localStorage.getItem(`phone_${user?.uid}`) || "---"
+            }));
+        });
+
+        return () => {
+            window.removeEventListener('wishlistUpdated', loadSavedData);
+            window.removeEventListener('cartUpdated', loadSavedData);
+        };
+    }, [user]);
 
     const toggleFavourite = (id) => {
-        setFavouriteItems(prev => prev.filter(item => item.id !== id));
+        const updated = favouriteItems.filter(item => item.id !== id);
+        setFavouriteItems(updated);
+        localStorage.setItem('favorites', JSON.stringify(updated));
+        window.dispatchEvent(new Event('wishlistUpdated'));
     };
     const [profileData, setProfileData] = useState({
         name: user?.displayName || "New User",
@@ -158,24 +208,22 @@ const Account = () => {
         },
     ]);
 
-    const [cartItems, setCartItems] = useState([
-        { id: 1, name: 'Precision Gear Set', price: 45.00, qty: 2, img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=100' },
-        { id: 2, name: 'Tough Resin V4', price: 89.99, qty: 1, img: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=100' },
-        { id: 3, name: 'Industrial PLA Red', price: 29.50, qty: 3, img: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=100' },
-        { id: 4, name: 'Aerospace Carbon Fiber', price: 199.00, qty: 1, img: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=100' },
-        { id: 5, name: 'Flexible TPU Blue', price: 55.00, qty: 2, img: 'https://images.unsplash.com/photo-1563206767-5b18f21dae90?auto=format&fit=crop&q=80&w=100' },
-        { id: 6, name: 'Detail Resin Clear', price: 75.25, qty: 1, img: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=100' },
-        { id: 7, name: 'Bronze Infused Filament', price: 68.00, qty: 1, img: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80&w=100' }
-    ]);
+
 
     const updateQuantity = (id, delta) => {
-        setCartItems(prev => prev.map(item =>
+        const updated = cartItems.map(item =>
             item.id === id ? { ...item, qty: Math.max(1, item.qty + delta) } : item
-        ));
+        );
+        setCartItems(updated);
+        localStorage.setItem('cart', JSON.stringify(updated.map(i => ({ ...i, quantity: i.qty }))));
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const removeFromCart = (id) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
+        const updated = cartItems.filter(item => item.id !== id);
+        setCartItems(updated);
+        localStorage.setItem('cart', JSON.stringify(updated.map(i => ({ ...i, quantity: i.qty }))));
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
     const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -867,7 +915,7 @@ const Account = () => {
 
                                         {favouriteItems.length > 0 ? (
                                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                                                {favouriteItems.map(item => (
+                                                {favouriteItems.slice(0, 4).map(item => (
                                                     <div key={item.id} style={{
                                                         padding: '1rem',
                                                         background: 'rgba(255, 255, 255, 0.02)',
@@ -880,7 +928,7 @@ const Account = () => {
                                                         <div style={{
                                                             position: 'absolute',
                                                             inset: 0,
-                                                            background: `url(${item.img}) center/cover no-repeat`,
+                                                            background: `url(${item.image || item.img}) center/cover no-repeat`,
                                                             opacity: 0.3
                                                         }} />
                                                         <div style={{
@@ -916,10 +964,10 @@ const Account = () => {
                                                         <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', zIndex: 1 }}>
                                                             <div>
                                                                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{item.name}</div>
-                                                                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>₹{item.price} • STL Model</div>
+                                                                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>₹{item.price?.toLocaleString()} • STL Model</div>
                                                             </div>
                                                             <button
-                                                                onClick={() => navigate(`/model/${item.id}`, { state: { model: item, from: '/account', activeTab: 'favourites' } })}
+                                                                onClick={() => setSelectedModel(item)}
                                                                 style={{ fontSize: '0.75rem', color: 'var(--primary)', border: '1px solid var(--primary)', padding: '4px 12px', borderRadius: '6px', background: 'rgba(112, 228, 222, 0.05)', cursor: 'pointer' }}
                                                             >View</button>
                                                         </div>
@@ -1414,6 +1462,16 @@ const Account = () => {
             </AnimatePresence >
 
             <Footer />
+
+            {/* Model Detail Overlay */}
+            <AnimatePresence>
+                {selectedModel && (
+                    <ModelDetailOverlay
+                        model={selectedModel}
+                        onClose={() => setSelectedModel(null)}
+                    />
+                )}
+            </AnimatePresence>
         </div >
     );
 };
