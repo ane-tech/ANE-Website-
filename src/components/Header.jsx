@@ -9,6 +9,8 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [localAvatar, setLocalAvatar] = useState(null);
+  const [localCrop, setLocalCrop] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -20,6 +22,20 @@ const Header = () => {
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
+
+  useEffect(() => {
+    const updateAvatar = () => {
+      if (user?.uid) {
+        setLocalAvatar(localStorage.getItem(`avatar_${user.uid}`));
+        const storedCrop = localStorage.getItem(`crop_${user.uid}`);
+        if (storedCrop) setLocalCrop(JSON.parse(storedCrop));
+      }
+    };
+
+    updateAvatar();
+    window.addEventListener('profileUpdate', updateAvatar);
+    return () => window.removeEventListener('profileUpdate', updateAvatar);
+  }, [user]);
 
   const services = [
     { name: 'Prototyping', description: 'Rapid concept validation', icon: <Box size={20} />, path: '/services/prototyping' },
@@ -307,8 +323,23 @@ const Header = () => {
               e.currentTarget.style.color = '#fff';
             }
           }}>
-            {user?.photoURL ? (
-              <img src={user.photoURL} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {localAvatar || user?.photoURL ? (
+              <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}>
+                <img
+                  src={localAvatar || user.photoURL}
+                  alt="Profile"
+                  style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    scale: localCrop?.scale || 1,
+                    rotate: `${localCrop?.rotate || 0}deg`,
+                    left: `${localCrop?.x ? (localCrop.x / 300) * 100 : 0}%`,
+                    top: `${localCrop?.y ? (localCrop.y / 300) * 100 : 0}%`,
+                  }}
+                />
+              </div>
             ) : (
               <User size={20} />
             )}
@@ -393,8 +424,23 @@ const Header = () => {
                 fontWeight: 500,
                 color: (location.pathname === '/account' || location.pathname === '/login') ? '#70e4de' : '#fff'
               }}>
-                {user?.photoURL ? (
-                  <img src={user.photoURL} alt="Profile" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                {localAvatar || user?.photoURL ? (
+                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', position: 'relative', overflow: 'hidden' }}>
+                    <img
+                      src={localAvatar || user.photoURL}
+                      alt="Profile"
+                      style={{
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        scale: localCrop?.scale || 1,
+                        rotate: `${localCrop?.rotate || 0}deg`,
+                        left: `${localCrop?.x ? (localCrop.x / 300) * 100 : 0}%`,
+                        top: `${localCrop?.y ? (localCrop.y / 300) * 100 : 0}%`,
+                      }}
+                    />
+                  </div>
                 ) : (
                   <User size={20} color="#70e4de" />
                 )}
