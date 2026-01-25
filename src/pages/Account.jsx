@@ -23,10 +23,19 @@ import {
 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
+import { useEffect } from 'react';
 
 const Account = () => {
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        }
+    }, [user, navigate]);
     const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'profile');
     const [isEditing, setIsEditing] = useState(false);
     const [phoneError, setPhoneError] = useState('');
@@ -45,26 +54,27 @@ const Account = () => {
         setFavouriteItems(prev => prev.filter(item => item.id !== id));
     };
     const [profileData, setProfileData] = useState({
-        name: "Sourav Sharma",
-        email: "sourav@ane.tech",
-        phone: "9876543210", // Store only 10 digits
-        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"]
+        name: user?.displayName || "New User",
+        email: user?.email || "",
+        phone: "Not Set", // Can be updated by user
+        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"],
+        avatar: user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.displayName || 'user'}`
     });
 
     const userData = {
         name: profileData.name,
         email: profileData.email,
         phone: profileData.phone,
-        memberSince: "January 2024",
-        tier: "Enterprise Designer",
+        memberSince: user?.metadata?.creationTime ? new Date(user.metadata.creationTime).getFullYear() : "2025",
+        tier: "Standard Designer",
         status: "Active",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${profileData.name}`,
+        avatar: profileData.avatar,
         stats: {
-            orders: 12,
+            orders: 0,
             favourites: favouriteItems.length,
-            credits: 1250,
-            storage: "1.2 GB / 5 GB",
-            prints: 3
+            credits: 0,
+            storage: "0 GB / 5 GB",
+            prints: 0
         }
     };
 
@@ -434,18 +444,24 @@ const Account = () => {
 
                                 <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.05)', margin: '1rem 0' }} />
 
-                                <button style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '1rem',
-                                    padding: '1.25rem',
-                                    borderRadius: '16px',
-                                    color: '#ff4d4d',
-                                    textAlign: 'left',
-                                    transition: 'all 0.3s ease',
-                                    fontSize: '1rem',
-                                    fontWeight: 500
-                                }}>
+                                <button
+                                    onClick={logout}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '1rem',
+                                        padding: '1.25rem',
+                                        borderRadius: '16px',
+                                        color: '#ff4d4d',
+                                        textAlign: 'left',
+                                        transition: 'all 0.3s ease',
+                                        fontSize: '1rem',
+                                        fontWeight: 500,
+                                        width: '100%',
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer'
+                                    }}>
                                     <LogOut size={20} />
                                     Sign Out
                                 </button>
