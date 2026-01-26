@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Box, Search, Layers, ArrowUpRight, Sparkles, Download, Eye, X } from 'lucide-react';
+import { Box, Search, Layers, ArrowUpRight, Sparkles, Download, Eye, X, ShoppingCart } from 'lucide-react';
 import ModelDetailOverlay from './ModelDetailOverlay';
 
 const ModelList = () => {
@@ -34,9 +34,8 @@ const ModelList = () => {
 
     // Use initialModels as fallback or for mixed data if needed, but primarily fetch
     const initialModels = [
-        { id: 1, name: 'Anatomical Heart v2', price: 29, image: 'https://images.unsplash.com/photo-1576086213369-97a306dca664?auto=format&fit=crop&q=80&w=400', category: 'Healthcare', rating: 4.8, downloads: 1200 },
-        { id: 2, name: 'Cyberpunk Helmet', price: 89, image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400', category: 'Electronics', rating: 4.5, downloads: 850 },
-        // ... keeping a few as fallback
+        { id: 1, name: 'Anatomical Heart v2', price: 29, image: 'https://images.unsplash.com/photo-1576086213369-97a306dca664?auto=format&fit=crop&q=80&w=400', category: 'Healthcare', rating: 4.8, sales: 1200 },
+        { id: 2, name: 'Cyberpunk Helmet', price: 89, image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400', category: 'Electronics', rating: 4.5, sales: 850 },
     ];
 
     const fetchModels = async (currentPage) => {
@@ -369,11 +368,12 @@ const ModelList = () => {
                                             transition: 'all 0.5s ease',
                                             transform: hoveredId === model.id ? 'translateY(-10px)' : 'translateY(0)',
                                             boxShadow: hoveredId === model.id
-                                                ? `0 30px 60px -12px ${primaryTeal}20`
-                                                : '0 10px 40px -20px rgba(0,0,0,0.5)',
-                                            aspectRatio: '3/4',
+                                                ? `0 15px 40px -10px ${primaryTeal}40`
+                                                : 'none',
                                             display: 'flex',
-                                            flexDirection: 'column'
+                                            flexDirection: 'column',
+                                            height: '520px',
+                                            position: 'relative'
                                         }}
                                     >
                                         {/* Top Section: Full Image */}
@@ -396,24 +396,26 @@ const ModelList = () => {
                                                 }}
                                             />
 
-                                            {/* Floating Price Tag */}
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: '1.25rem',
-                                                right: '1.25rem',
-                                                padding: '0.6rem 1rem',
-                                                background: 'rgba(5, 5, 8, 0.6)',
-                                                backdropFilter: 'blur(12px)',
-                                                border: `1px solid ${primaryTeal}40`,
-                                                borderRadius: '12px',
-                                                color: primaryTeal,
-                                                fontSize: '1.2rem',
-                                                fontWeight: 800,
-                                                zIndex: 10,
-                                                boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                                            }}>
-                                                ₹{model.price}
-                                            </div>
+                                            {/* Floating Price Tag - Only for Non-Thinkiverse */}
+                                            {model.category !== 'Thinkiverse' && (
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: '1.25rem',
+                                                    right: '1.25rem',
+                                                    padding: '0.6rem 1rem',
+                                                    background: 'rgba(5, 5, 8, 0.6)',
+                                                    backdropFilter: 'blur(12px)',
+                                                    border: `1px solid ${primaryTeal}40`,
+                                                    borderRadius: '12px',
+                                                    color: primaryTeal,
+                                                    fontSize: '1.2rem',
+                                                    fontWeight: 800,
+                                                    zIndex: 10,
+                                                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                                                }}>
+                                                    ₹{model.price}
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Bottom Section: Info Panel */}
@@ -492,8 +494,8 @@ const ModelList = () => {
                                                     color: '#8a8a9a',
                                                     fontSize: '0.8rem'
                                                 }}>
-                                                    <Download size={14} />
-                                                    {model.downloads.toLocaleString()} sales
+                                                    <ShoppingCart size={14} />
+                                                    {(model.sales || 0).toLocaleString()} sales
                                                 </div>
 
                                                 <div style={{

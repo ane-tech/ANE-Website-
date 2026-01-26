@@ -31,20 +31,41 @@ export const getPopularModels = async (req, res) => {
             const highResImage = item.thumbnail?.replace('thumb_medium', 'large')
                 .replace('thumb_small', 'large') || item.thumbnail;
 
+            // Derive a realistic but stable price based on model properties
+            // We use the ID as a seed to keep the price consistent for each model
+            const basePrice = (item.id % 20) * 100 + 499;
+            const complexityBonus = item.like_count > 500 ? 500 : 0;
+            const finalPrice = basePrice + complexityBonus;
+
+            // Precision Data-Driven Rating Formula (Targeting 3.4 - 5.0)
+            const likesWeight = (item.like_count || 0) * 0.12;
+            const makesWeight = (item.make_count || 0) * 2.5;
+            const qualityScore = likesWeight + makesWeight;
+
+            const baseRating = 3.4;
+            // Precision divisor to ensure popular items spread across 3.x and 4.x
+            const calculatedBonus = Math.min(1.6, qualityScore / 15000);
+            const finalRating = (baseRating + calculatedBonus).toFixed(1);
+
             return {
                 id: item.id,
                 name: item.name,
-                price: 0,
+                price: finalPrice,
                 image: highResImage || item.thumbnail,
                 category: 'Thinkiverse',
-                rating: item.like_count > 100 ? 5.0 : 4.0,
+                rating: finalRating,
                 description: item.description,
                 downloads: item.download_count || 0,
-                like_count: item.like_count
+                like_count: item.like_count,
+                // Combine metrics to ensure a robust "sales" figure
+                sales: (item.collect_count || 0) + (item.like_count || 0) || Math.floor(Math.random() * 500) + 100
             };
         });
 
-        res.status(200).json(transformedModels);
+        // Shuffle the results for a dynamic feel on refresh
+        const shuffledModels = transformedModels.sort(() => Math.random() - 0.5);
+
+        res.status(200).json(shuffledModels);
 
     } catch (error) {
         console.error('Server Error:', error);
@@ -73,26 +94,40 @@ export const getModelDetails = async (req, res) => {
         // Transform - Prioritize highest quality display sizes
         const gallery = images.map(img => {
             const sizes = img.sizes || [];
-            // Absolute priority list based on observed Thingiverse URL patterns and API types
-            const highRes = sizes.find(s => s.type === 'original') ||
-                sizes.find(s => s.url.includes('original')) ||
-                sizes.find(s => s.type === 'display' && s.size === 'large') ||
+            // Consistently prioritize display_large to match popular list
+            const highRes = sizes.find(s => s.type === 'display' && s.size === 'large') ||
                 sizes.find(s => s.url.includes('display_large')) ||
+                sizes.find(s => s.type === 'original' || s.size === 'original') ||
+                sizes.find(s => s.url.includes('original')) ||
+                sizes.find(s => s.type === 'display') ||
                 sizes.find(s => s.size === 'large') ||
                 sizes[0];
             return highRes?.url || img.url;
         });
 
+        // Match the pricing/rating logic from the list view
+        const basePrice = (details.id % 20) * 100 + 499;
+        const complexityBonus = details.like_count > 500 ? 500 : 0;
+
+        // Precision Data-Driven Rating Formula (Match List View)
+        const likesWeight = (details.like_count || 0) * 0.12;
+        const makesWeight = (details.make_count || 0) * 2.5;
+
+        const qualityScore = likesWeight + makesWeight;
+        const baseRating = 3.4;
+        const calculatedBonus = Math.min(1.6, qualityScore / 15000);
+
         const fullModel = {
             id: details.id,
             name: details.name,
-            price: 0,
+            price: basePrice + complexityBonus,
             image: details.thumbnail,
             images: gallery,
             description: details.description,
             category: 'Thinkiverse',
             downloads: details.download_count,
-            rating: details.like_count > 50 ? 4.8 : 4.2,
+            sales: (details.collect_count || 0) + (details.like_count || 0) || Math.floor(Math.random() * 500) + 100,
+            rating: (baseRating + calculatedBonus).toFixed(1),
             creator: details.creator?.name,
             license: details.license
         };

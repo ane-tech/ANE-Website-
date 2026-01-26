@@ -131,6 +131,26 @@ const ModelDetailOverlay = ({ model, onClose }) => {
         setIsWishlisted(!isWishlisted);
     };
 
+    const refineDescription = (html) => {
+        if (!html) return null;
+        // Strip HTML tags
+        let text = html.replace(/<[^>]*>?/gm, ' ');
+        // Remove common redundant labels
+        text = text.replace(/Summary/gi, '')
+            .replace(/Overview/gi, '')
+            .replace(/Description/gi, '')
+            .replace(/[:\-]/g, ' ')
+            .trim();
+
+        // Split into sentences and filter out very short junk
+        const sentences = text.split(/[.!?]/).map(s => s.trim()).filter(s => s.length > 20);
+
+        // Take the top meaningful content
+        return sentences.slice(0, 4).map(s => s.charAt(0).toUpperCase() + s.slice(1) + '.');
+    };
+
+    const formattedDesc = refineDescription(fullModel.description);
+
     const handleShare = () => {
         const url = `${window.location.origin}/model/${model.id}`;
         if (navigator.share) {
@@ -148,6 +168,20 @@ const ModelDetailOverlay = ({ model, onClose }) => {
             return;
         }
         if (quantity === 0) updateCart(1);
+    };
+
+    const handleWhatsAppOrder = () => {
+        const phoneNumber = "918235438812"; // Your WhatsApp Number
+        const message = `   *NEW ORDER FROM ANE WEBSITE* 
+*Model Name:* ${fullModel.name}
+ *Category:* ${fullModel.category} 
+*Quantity:* ${quantity || 1} 
+                                  *Preview:* ${fullModel.image || (fullModel.images && fullModel.images[0])} 
+
+Please confirm the order and provide further details.`;
+
+        const encodedMsg = encodeURIComponent(message);
+        window.open(`https://wa.me/${phoneNumber}?text=${encodedMsg}`, '_blank');
     };
 
     const modalContent = (
@@ -275,58 +309,93 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                                     <Star size={14} fill="#fbbf24" color="#fbbf24" />
                                     <span>{model.rating}</span>
                                 </div>
+                                <div className="rating-pill">
+                                    <ShoppingCart size={14} color={primaryTeal} />
+                                    <span>{(fullModel.sales || model.sales || 0).toLocaleString()} Sales</span>
+                                </div>
                             </div>
 
                             <h1 className="model-name">{fullModel.name}</h1>
 
-                            <div className="description-container" style={{
-                                minHeight: '80px',
-                                maxHeight: '200px',
-                                overflowY: 'auto',
-                                marginBottom: '2.5rem',
-                                paddingRight: '1rem'
-                            }}>
-                                <p className="model-brief" style={{ margin: 0 }}>
+                            <div className="description-master-container">
+                                <div className="description-accent-line"></div>
+                                <div className="description-content" style={{
+                                    minHeight: '100px',
+                                    maxHeight: '280px',
+                                    overflowY: 'auto',
+                                    paddingRight: '1.5rem',
+                                    scrollPaddingBottom: '2rem'
+                                }}>
                                     {loadingDetails ? (
-                                        <motion.span
-                                            initial={{ opacity: 0.5 }}
-                                            animate={{ opacity: [0.5, 1, 0.5] }}
-                                            transition={{ repeat: Infinity, duration: 1.5 }}
-                                        >
-                                            Loading authentic technical details...
-                                        </motion.span>
-                                    ) : fullModel.description ? (
-                                        <span dangerouslySetInnerHTML={{ __html: fullModel.description }} />
+                                        <div className="description-loading">
+                                            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2 }} className="skeleton-text" />
+                                            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2, delay: 0.2 }} className="skeleton-text short" />
+                                        </div>
                                     ) : (
-                                        "Professional architectural asset precision-tuned for additive manufacturing. Features internal reinforcement and validated print pathing."
+                                        <div className="refined-description-grid">
+                                            <div className="refinement-section">
+                                                <h4 className="refinement-title">PROPERTY OVERVIEW</h4>
+                                                <p className="premium-intro-text">
+                                                    An expertly crafted <span style={{ color: primaryTeal }}>{fullModel.name}</span> asset, specifically curated for our <span style={{ color: primaryTeal }}>{fullModel.category}</span> elite collection.
+                                                </p>
+                                            </div>
+
+                                            {formattedDesc && formattedDesc.length > 0 ? (
+                                                <div className="refinement-section">
+                                                    <h4 className="refinement-title">TECHNICAL INSIGHTS</h4>
+                                                    <div className="organized-sentences">
+                                                        {formattedDesc.map((sentence, idx) => (
+                                                            <motion.p
+                                                                key={idx}
+                                                                initial={{ opacity: 0, x: 10 }}
+                                                                animate={{ opacity: 1, x: 0 }}
+                                                                transition={{ delay: 0.1 * idx }}
+                                                                className="refined-sentence"
+                                                            >
+                                                                {sentence}
+                                                            </motion.p>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="refinement-section">
+                                                    <h4 className="refinement-title">MODEL PROFILE</h4>
+                                                    <p className="description-placeholder-text">
+                                                        The technical profile for {fullModel.name} is currently being synchronized. This asset features optimized mesh topology for professional-grade digital manufacturing.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
-                                </p>
+                                </div>
                             </div>
 
                             <div className="integrated-dashboard">
-                                {/* Technical Specs Card */}
-                                <div className="dashboard-card technical" style={{ gridColumn: 'span 2' }}>
-                                    <div className="card-label">PRINT SPECIFICATIONS</div>
-                                    <div className="specs-masonry" style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                        gap: '1.5rem 4rem',
-                                        textAlign: 'left'
-                                    }}>
-                                        {techSpecs.map((spec, i) => (
-                                            <div key={i} className="masonry-item" style={{
-                                                borderBottom: '1px solid rgba(255,255,255,0.03)',
-                                                paddingBottom: '0.75rem',
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center'
-                                            }}>
-                                                <span className="m-label">{spec.label}</span>
-                                                <span className="m-val">{spec.value}</span>
-                                            </div>
-                                        ))}
+                                {/* Technical Specs Card - Hide for Thinkiverse */}
+                                {fullModel.category !== 'Thinkiverse' && (
+                                    <div className="dashboard-card technical" style={{ gridColumn: 'span 2' }}>
+                                        <div className="card-label">PRINT SPECIFICATIONS</div>
+                                        <div className="specs-masonry" style={{
+                                            display: 'grid',
+                                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                            gap: '1.5rem 4rem',
+                                            textAlign: 'left'
+                                        }}>
+                                            {techSpecs.map((spec, i) => (
+                                                <div key={i} className="masonry-item" style={{
+                                                    borderBottom: '1px solid rgba(255,255,255,0.03)',
+                                                    paddingBottom: '0.75rem',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span className="m-label">{spec.label}</span>
+                                                    <span className="m-val">{spec.value}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
 
                                 {/* Pricing Card */}
                                 <div className="dashboard-card primary" style={{
@@ -337,26 +406,36 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                                     gap: quantity > 0 ? '1.5rem' : '0'
                                 }}>
                                     <div className="premium-price-row" style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                                        <div className="price-tag" style={{ marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase' }}>PRICE</div>
-                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.2rem', lineHeight: 1 }}>
-                                                <span className="sym">₹</span>
-                                                <span className="val">{fullModel.price === 0 ? 'Free' : fullModel.price}</span>
+                                        {/* Only show price if NOT Thinkiverse */}
+                                        {fullModel.category !== 'Thinkiverse' && (
+                                            <div className="price-tag" style={{ marginRight: 'auto', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase' }}>PRICE</div>
+                                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.2rem', lineHeight: 1 }}>
+                                                    <span className="sym">₹</span>
+                                                    <span className="val">{fullModel.price === 0 ? 'Free' : fullModel.price}</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="action-stack" style={{ marginLeft: 'auto' }}>
+                                        )}
+
+                                        <div className="action-stack" style={{
+                                            marginLeft: fullModel.category === 'Thinkiverse' ? '0' : 'auto',
+                                            width: fullModel.category === 'Thinkiverse' ? '100%' : 'auto',
+                                            display: 'flex',
+                                            justifyContent: 'center'
+                                        }}>
                                             {quantity === 0 ? (
                                                 <motion.button
                                                     whileHover={{ scale: 1.02, background: '#fff' }}
                                                     whileTap={{ scale: 0.98 }}
                                                     className="checkout-trigger"
                                                     onClick={handleAddToCart}
+                                                    style={{ width: fullModel.category === 'Thinkiverse' ? '100%' : 'auto' }}
                                                 >
                                                     <span>GET MODEL</span>
-                                                    <ArrowRight size={18} />
+                                                    <ArrowRightIcon size={18} />
                                                 </motion.button>
                                             ) : (
-                                                <div className="quantity-selector" style={{ margin: 0 }}>
+                                                <div className="quantity-selector" style={{ margin: '0 auto', width: '100%', justifyContent: 'center' }}>
                                                     <button onClick={() => updateCart(Math.max(0, quantity - 1))}><Minus size={18} /></button>
                                                     <span className="qty-val">{quantity}</span>
                                                     <button onClick={() => updateCart(quantity + 1)}><Plus size={18} /></button>
@@ -370,10 +449,20 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             className="view-cart-btn"
-                                            onClick={() => navigate('/cart')}
-                                            style={{ width: '100%', margin: 0 }}
+                                            onClick={fullModel.category === 'Thinkiverse' ? handleWhatsAppOrder : () => navigate('/cart')}
+                                            style={{
+                                                width: '100%',
+                                                margin: 0,
+                                                background: fullModel.category === 'Thinkiverse' ? `rgba(112,228,222,0.1)` : 'rgba(255,255,255,0.03)',
+                                                borderColor: fullModel.category === 'Thinkiverse' ? primaryTeal : 'rgba(255,255,255,0.08)',
+                                                color: fullModel.category === 'Thinkiverse' ? primaryTeal : '#fff'
+                                            }}
                                         >
-                                            <ShoppingCart size={18} /> VIEW CART
+                                            {fullModel.category === 'Thinkiverse' ? (
+                                                <><Share2 size={18} /> ORDER VIA WHATSAPP</>
+                                            ) : (
+                                                <><ShoppingCart size={18} /> VIEW CART</>
+                                            )}
                                         </motion.button>
                                     )}
                                 </div>
@@ -445,12 +534,10 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                     .img-frame img { 
                         width: 100%; 
                         height: 100%; 
-                        object-fit: cover; /* Fill the whole card as requested */
-                        image-rendering: -webkit-optimize-contrast; /* Keeps it sharp even when scaled */
-                        filter: brightness(1.05) contrast(1.05);
-                        padding: 0;
+                        object-fit: cover; /* Fill card exactly */
+                        image-rendering: auto; /* Smoothest for photography */
                         display: block;
-                        background: transparent;
+                        background: #000;
                     }
                     .expand-trigger { position: absolute; bottom: 1rem; right: 1rem; width: 44px; height: 44px; border-radius: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; z-index: 5; }
                     .expand-trigger:hover { background: ${primaryTeal}; color: #000; }
@@ -520,12 +607,41 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                     .m-label { font-size: 0.65rem; color: #555566; font-weight: 800; text-transform: uppercase; }
                     .m-val { font-size: 0.85rem; color: #fff; font-weight: 600; white-space: nowrap; }
 
-                    .description-container::-webkit-scrollbar { width: 4px; }
-                    .description-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-                    .description-container::-webkit-scrollbar-thumb { background: rgba(112, 228, 222, 0.2); border-radius: 10px; }
-                    
-                    .model-brief img { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
-                    .model-brief p { margin-bottom: 1rem; }
+                    .description-master-container { 
+                        position: relative; 
+                        margin-bottom: 3rem; 
+                        padding: 1.5rem; 
+                        padding-left: 2rem;
+                        background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+                        border-radius: 0 24px 24px 0;
+                        border: 1px solid rgba(255,255,255,0.03);
+                        border-left: none;
+                    }
+                    .description-accent-line { 
+                        position: absolute; 
+                        left: 0; 
+                        top: 1.5rem; 
+                        bottom: 1.5rem; 
+                        width: 3px; 
+                        background: ${primaryTeal}; 
+                        box-shadow: 0 0 15px ${primaryTeal}40;
+                        border-radius: 10px;
+                    }
+                    .description-content { color: #8a8a9a; font-size: 0.9rem; line-height: 1.7; font-family: 'Inter', sans-serif; }
+                    .refinement-section { margin-bottom: 2rem; }
+                    .refinement-title { font-size: 0.65rem; font-weight: 900; color: ${primaryTeal}; letter-spacing: 0.2em; margin-bottom: 1rem; opacity: 0.8; }
+                    .premium-intro-text { color: #fff; font-weight: 500; font-size: 1.1rem; line-height: 1.5; margin: 0; }
+                    .refined-sentence { margin-bottom: 0.75rem; color: #a1a1b1; position: relative; padding-left: 1.25rem; }
+                    .refined-sentence::before { content: ""; position: absolute; left: 0; top: 0.6rem; width: 4px; height: 4px; background: ${primaryTeal}; border-radius: 50%; opacity: 0.5; }
+                    .description-placeholder-text { font-style: italic; opacity: 0.6; }
+
+                    .skeleton-text { height: 12px; background: rgba(255,255,255,0.05); border-radius: 4px; margin-bottom: 12px; width: 100%; }
+                    .skeleton-text.short { width: 60%; }
+
+                    .description-content::-webkit-scrollbar { width: 4px; }
+                    .description-content::-webkit-scrollbar-track { background: transparent; }
+                    .description-content::-webkit-scrollbar-thumb { background: rgba(112, 228, 222, 0.2); border-radius: 10px; }
+                    .description-content:hover::-webkit-scrollbar-thumb { background: rgba(112, 228, 222, 0.4); }
                     
                     @media (max-width: 1024px) {
                         .detail-grid { grid-template-columns: 1fr; gap: 4rem; }
@@ -547,7 +663,10 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        onClick={() => setShowFullView(false)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowFullView(false);
+                        }}
                         style={{
                             position: 'fixed',
                             inset: 0,
@@ -558,7 +677,48 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                             justifyContent: 'center'
                         }}
                     >
-                        <img src={galleryImages[selectedImg]} style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '20px' }} alt="Full View" />
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ position: 'relative', width: '95vw', height: '95vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            <img
+                                src={galleryImages[selectedImg]}
+                                onClick={() => setShowFullView(false)}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 0 100px rgba(0,0,0,0.5)',
+                                    cursor: 'zoom-out'
+                                }}
+                                alt="Full View"
+                            />
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowFullView(false);
+                                }}
+                                style={{
+                                    position: 'absolute',
+                                    top: '20px',
+                                    right: '20px',
+                                    width: '50px',
+                                    height: '50px',
+                                    borderRadius: '50%',
+                                    background: 'rgba(255,255,255,0.1)',
+                                    backdropFilter: 'blur(10px)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    color: '#fff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
