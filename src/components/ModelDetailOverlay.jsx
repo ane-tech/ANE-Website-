@@ -433,21 +433,24 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                     .img-frame { 
                         position: relative; 
                         width: 100%; 
-                        aspect-ratio: 1; /* Change to square for stability */
-                        border-radius: 24px; 
+                        aspect-ratio: 4 / 3; /* Matches Thingiverse native ratio (628x472) */
+                        border-radius: 20px; 
                         overflow: hidden; 
-                        background: rgba(0,0,0,0.4);
+                        background: rgba(0,0,0,0.6);
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                        box-shadow: inset 0 0 40px rgba(0,0,0,0.5);
                     }
                     .img-frame img { 
                         width: 100%; 
                         height: 100%; 
-                        object-fit: cover;
-                        image-rendering: high-quality;
+                        object-fit: cover; /* Fill the whole card as requested */
+                        image-rendering: -webkit-optimize-contrast; /* Keeps it sharp even when scaled */
+                        filter: brightness(1.05) contrast(1.05);
                         padding: 0;
                         display: block;
+                        background: transparent;
                     }
                     .expand-trigger { position: absolute; bottom: 1rem; right: 1rem; width: 44px; height: 44px; border-radius: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; z-index: 5; }
                     .expand-trigger:hover { background: ${primaryTeal}; color: #000; }

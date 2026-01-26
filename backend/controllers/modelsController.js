@@ -35,7 +35,7 @@ export const getPopularModels = async (req, res) => {
                 id: item.id,
                 name: item.name,
                 price: 0,
-                image: highResImage,
+                image: highResImage || item.thumbnail,
                 category: 'Thinkiverse',
                 rating: item.like_count > 100 ? 5.0 : 4.0,
                 description: item.description,
@@ -73,10 +73,12 @@ export const getModelDetails = async (req, res) => {
         // Transform - Prioritize highest quality display sizes
         const gallery = images.map(img => {
             const sizes = img.sizes || [];
-            // Preference order: display_large > large > original > medium
-            const highRes = sizes.find(s => s.size === 'display_large') ||
+            // Absolute priority list based on observed Thingiverse URL patterns and API types
+            const highRes = sizes.find(s => s.type === 'original') ||
+                sizes.find(s => s.url.includes('original')) ||
+                sizes.find(s => s.type === 'display' && s.size === 'large') ||
+                sizes.find(s => s.url.includes('display_large')) ||
                 sizes.find(s => s.size === 'large') ||
-                sizes.find(s => s.size === 'original') ||
                 sizes[0];
             return highRes?.url || img.url;
         });

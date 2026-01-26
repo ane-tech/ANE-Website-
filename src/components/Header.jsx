@@ -71,7 +71,14 @@ const Header = () => {
       borderBottom: scrolled ? '1px solid rgba(255,255,255,0.05)' : 'none',
       transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
     }}>
-      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 2.5rem',
+        width: '100%',
+        maxWidth: '100%'
+      }}>
         {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center' }}>
           <span style={{ fontSize: '1.75rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#70e4de' }}>ANE</span>
