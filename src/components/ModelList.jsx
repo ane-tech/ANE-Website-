@@ -4,8 +4,9 @@ import { Box, Search, Layers, ArrowUpRight, Sparkles, Download, Eye, X } from 'l
 import ModelDetailOverlay from './ModelDetailOverlay';
 
 const ModelList = () => {
-    const [models, setModels] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [models, setModels] = useState([]); // Initialize empty, fetch will populate
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(1);
     const [activeFilter, setActiveFilter] = useState('All');
@@ -16,7 +17,7 @@ const ModelList = () => {
     const searchRef = useRef(null);
     const loader = useRef(null);
 
-    const categories = ['All', 'Healthcare', 'Art', 'Education', 'Electronics'];
+    const categories = ['All', 'Healthcare', 'Art', 'Education', 'Electronics', 'Thinkiverse'];
     const primaryTeal = '#70e4de';
 
     const getFilterColor = (category) => {
@@ -25,76 +26,66 @@ const ModelList = () => {
             'Art': '#a855f7',
             'Education': '#f59e0b',
             'Electronics': '#3b82f6',
+            'Thinkiverse': '#2563eb',
             'All': '#70e4de'
         };
         return colors[category] || '#70e4de';
     };
 
+    // Use initialModels as fallback or for mixed data if needed, but primarily fetch
     const initialModels = [
-        { id: 1, name: 'Anatomical Heart v2', price: 29, image: 'https://images.unsplash.com/photo-1576086213369-97a306dca664?auto=format&fit=crop&q=80&w=400', category: 'Healthcare' },
-        { id: 2, name: 'Cyberpunk Helmet', price: 89, image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400', category: 'Electronics' },
-        { id: 3, name: 'Low Poly Globe', price: 19, image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=400', category: 'Education' },
-        { id: 4, name: 'Greek Bust Sculpture', price: 120, image: 'https://images.unsplash.com/photo-1544923246-77307dd654ca?auto=format&fit=crop&q=80&w=400', category: 'Art' },
-        { id: 5, name: 'Precision Drone Frame', price: 45, image: 'https://images.unsplash.com/photo-1522273503825-67484a4538aa?auto=format&fit=crop&q=80&w=400', category: 'Electronics' },
-        { id: 6, name: 'Minimalist Vase', price: 24, image: 'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=400', category: 'Art' },
-        { id: 7, name: 'Lumber Spine Model', price: 150, image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=400', category: 'Healthcare' },
-        { id: 8, name: 'Molecule Structure kit', price: 34, image: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&q=80&w=400', category: 'Education' },
-        { id: 9, name: 'Mechanical Gears Set', price: 42, image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=400', category: 'Electronics' },
-        { id: 10, name: 'T-Rex Skull Prototype', price: 199, image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=400', category: 'Art' },
-        { id: 11, name: 'Bionic Hand Assembly', price: 250, image: 'https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&q=80&w=400', category: 'Healthcare' },
-        { id: 12, name: 'Solar System Display', price: 55, image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=400', category: 'Education' }
+        { id: 1, name: 'Anatomical Heart v2', price: 29, image: 'https://images.unsplash.com/photo-1576086213369-97a306dca664?auto=format&fit=crop&q=80&w=400', category: 'Healthcare', rating: 4.8, downloads: 1200 },
+        { id: 2, name: 'Cyberpunk Helmet', price: 89, image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?auto=format&fit=crop&q=80&w=400', category: 'Electronics', rating: 4.5, downloads: 850 },
+        // ... keeping a few as fallback
     ];
 
-    const fetchMoreModels = () => {
-        if (loading || !hasMore) return;
-        setLoading(true);
+    const fetchModels = async (currentPage) => {
+        try {
+            setLoading(true);
+            const response = await fetch(`http://localhost:5000/api/models?page=${currentPage}`);
+            if (!response.ok) throw new Error('Failed to fetch from backend');
 
-        setTimeout(() => {
-            // Shuffle and slightly modify properties to avoid looking like duplicates
-            const shuffled = [...initialModels].sort(() => Math.random() - 0.5);
-            const moreModels = shuffled.map((m, i) => ({
-                ...m,
-                id: `${m.id}-p${page}-${i}-${Math.random().toString(36).substr(2, 5)}`,
-                name: `${m.name}${page > 1 ? ' ' + String.fromCharCode(64 + page) : ''}`,
-                price: m.price + Math.floor(Math.random() * 10 - 5), // Slight price variation
-                downloads: Math.floor(Math.random() * 5000) + 100,
-                rating: (() => {
-                    const r = Math.random();
-                    if (r < 0.1) return (Math.random() * 1.5 + 0.5).toFixed(1); // ~10% are below 2.0
-                    if (r < 0.3) return (Math.random() * 2.5 + 2.0).toFixed(1); // ~20% are between 2.0 and 4.5
-                    return (Math.random() * 0.5 + 4.5).toFixed(1); // Majority are high quality (4.5+)
-                })()
-            }));
+            const data = await response.json();
 
-            setModels(prev => [...prev, ...moreModels]);
-            setLoading(false);
-
-            if (page >= 4) {
-                setHasMore(false);
+            if (Array.isArray(data) && data.length > 0) {
+                setModels(prev => currentPage === 1 ? data : [...prev, ...data]);
+                setHasMore(data.length > 0);
             } else {
-                setPage(p => p + 1);
+                setHasMore(false);
+                if (currentPage === 1) setModels(initialModels);
             }
-        }, 1200);
+        } catch (err) {
+            console.error("Error loading models:", err);
+            setError(err.message);
+            if (currentPage === 1) setModels(initialModels);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Only rely on the IntersectionObserver to fetch the first batch and subsequent batches
-    // This prevents double-fetching on mount if the loader is visible
+    useEffect(() => {
+        fetchModels(1);
+    }, []);
+
+    // Infinite Scroll Handler
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && hasMore && !loading) {
-                fetchMoreModels();
+                setPage(prev => {
+                    const nextPage = prev + 1;
+                    fetchModels(nextPage);
+                    return nextPage;
+                });
             }
         }, { threshold: 0.1, rootMargin: '100px' });
 
-        if (loader.current) {
-            observer.observe(loader.current);
-        }
+        if (loader.current) observer.observe(loader.current);
+        return () => { if (loader.current) observer.unobserve(loader.current); };
+    }, [hasMore, loading]);
 
-        return () => {
-            if (loader.current) observer.unobserve(loader.current);
-        };
-    }, [loader, hasMore, loading, page]);
+    // ... removed old fetchMoreModels logic for now or adapt it for pagination if API supports it
 
+    // Keydown handler
     useEffect(() => {
         const handleKeyDown = (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -113,8 +104,8 @@ const ModelList = () => {
     }, []);
 
     const filteredModels = models.filter(m => {
-        const matchesFilter = activeFilter === 'All' || m.category === activeFilter;
-        const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFilter = activeFilter === 'All' || m.category === activeFilter || (activeFilter === 'Thinkiverse' && m.category === 'Thinkiverse');
+        const matchesSearch = m.name?.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesFilter && matchesSearch;
     });
 
@@ -348,7 +339,6 @@ const ModelList = () => {
 
                 {/* Models Grid */}
                 <motion.div
-                    layout
                     style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -361,7 +351,6 @@ const ModelList = () => {
                             return (
                                 <motion.div
                                     key={`${model.id}-${idx}`}
-                                    layout
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
@@ -401,6 +390,7 @@ const ModelList = () => {
                                                     height: '100%',
                                                     objectFit: 'cover',
                                                     filter: isHovered ? 'brightness(0.9) saturate(1.2)' : 'brightness(0.85) saturate(1.1)',
+                                                    imageRendering: 'high-quality',
                                                     transition: 'all 0.6s ease',
                                                     transform: isHovered ? 'scale(1.05)' : 'scale(1)'
                                                 }}

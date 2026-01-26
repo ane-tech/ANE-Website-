@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -33,6 +34,9 @@ const ModelDetailOverlay = ({ model, onClose }) => {
 
     const primaryTeal = '#70e4de';
 
+    const [fullModel, setFullModel] = useState(model);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+
     const techSpecs = [
         { label: 'Complexity', value: 'High Detail' },
         { label: 'Recommended Infill', value: '15-20%' },
@@ -42,14 +46,44 @@ const ModelDetailOverlay = ({ model, onClose }) => {
         { label: 'Print Time', value: '~14 Hours' }
     ];
 
-    const mockGallery = [
-        model.image,
-        'https://images.unsplash.com/photo-1563206767-5b18f21dae90?auto=format&fit=crop&q=80&w=600',
-        'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&q=80&w=600',
-        'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?auto=format&fit=crop&q=80&w=600'
-    ];
+
+
+    useLayoutEffect(() => {
+        // Handle scrollbar shift to prevent horizontal jump
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : '';
+
+        return () => {
+            // Restore body scroll and padding when overlay is closed
+            document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
+        };
+    }, []);
 
     useEffect(() => {
+        const fetchDetails = async () => {
+            // Check if it's a Thingiverse ID (usually numeric or specific format, assuming numeric for now or just check if it's missing details)
+            if (model.id && !model.images && !model.mock) {
+                setLoadingDetails(true);
+                try {
+                    // Strip the "p1-0-" suffix logic if it exists from the list view ID generation
+                    const realId = String(model.id).split('-')[0];
+
+                    const response = await fetch(`http://localhost:5000/api/models/${realId}`);
+                    if (response.ok) {
+                        const details = await response.json();
+                        setFullModel(prev => ({ ...prev, ...details }));
+                    }
+                } catch (err) {
+                    console.error("Failed to load details", err);
+                } finally {
+                    setLoadingDetails(false);
+                }
+            }
+        };
+        fetchDetails();
+
         const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         setIsWishlisted(favorites.some(fav => fav.id === model.id));
 
@@ -59,6 +93,8 @@ const ModelDetailOverlay = ({ model, onClose }) => {
             setQuantity(existingItem.quantity);
         }
     }, [model.id]);
+
+    const galleryImages = fullModel.images && fullModel.images.length > 0 ? fullModel.images : [fullModel.image || fullModel.thumbnail];
 
     const updateCart = (newQty) => {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -114,7 +150,7 @@ const ModelDetailOverlay = ({ model, onClose }) => {
         if (quantity === 0) updateCart(1);
     };
 
-    return (
+    const modalContent = (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -122,33 +158,36 @@ const ModelDetailOverlay = ({ model, onClose }) => {
             style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(5, 5, 8, 0.85)',
-                backdropFilter: 'blur(20px)',
-                zIndex: 1000,
+                background: 'rgba(2, 2, 4, 0.95)',
+                backdropFilter: 'blur(15px)',
+                zIndex: 9999,
                 display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'center',
-                padding: '2rem',
-                overflowY: 'auto'
+                alignItems: 'flex-start',
+                padding: '5vh 2rem',
+                overflowY: 'auto',
+                scrollbarGutter: 'stable', // Prevents horizontal jump when scrollbar appears
+                scrollBehavior: 'auto'
             }}
             onClick={onClose}
         >
             <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 30 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 30 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.3 }}
                 style={{
                     background: '#050508',
                     width: '100%',
-                    maxWidth: '1400px',
-                    maxHeight: '90vh',
-                    borderRadius: '40px',
-                    border: '1px solid rgba(112, 228, 222, 0.2)',
-                    boxShadow: '0 50px 100px rgba(0,0,0,0.8)',
+                    maxWidth: '1300px',
+                    borderRadius: '32px',
+                    border: '1px solid rgba(112, 228, 222, 0.15)',
+                    boxShadow: '0 40px 100px rgba(0,0,0,0.9)',
                     position: 'relative',
-                    overflowY: 'auto',
-                    padding: '4rem 2rem'
+                    padding: '3rem',
+                    marginBottom: '5vh',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}
                 onClick={e => e.stopPropagation()}
             >
@@ -186,29 +225,35 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                             <motion.div className="main-stage">
                                 <AnimatePresence mode="wait">
                                     <motion.div
-                                        key={selectedImg}
-                                        initial={{ opacity: 0, filter: 'blur(10px)' }}
-                                        animate={{ opacity: 1, filter: 'blur(0px)' }}
+                                        key={galleryImages[selectedImg]} // Use URL as key for smooth cross-fades
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
                                         className="img-frame"
                                     >
-                                        <img src={mockGallery[selectedImg]} alt={model.name} />
+                                        <img src={galleryImages[selectedImg]} alt={fullModel.name} />
                                         <button className="expand-trigger" onClick={() => setShowFullView(true)}>
                                             <Maximize2 size={20} />
                                         </button>
                                     </motion.div>
                                 </AnimatePresence>
 
-                                <div className="gallery-thumbs">
-                                    {mockGallery.map((img, i) => (
-                                        <motion.div
-                                            key={i}
-                                            whileHover={{ y: -5, borderColor: primaryTeal }}
-                                            onClick={() => setSelectedImg(i)}
-                                            className={`thumb-item ${selectedImg === i ? 'active' : ''}`}
-                                        >
-                                            <img src={img} alt="" />
-                                        </motion.div>
-                                    ))}
+                                <div className="gallery-tray-container" style={{ marginTop: '2.5rem', position: 'relative' }}>
+                                    <div className="gallery-thumbs">
+                                        {galleryImages.map((img, i) => (
+                                            <motion.div
+                                                key={i}
+                                                whileHover={{ y: -4, borderColor: primaryTeal }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={() => setSelectedImg(i)}
+                                                className={`thumb-item ${selectedImg === i ? 'active' : ''}`}
+                                            >
+                                                <img src={img} alt="" />
+                                                <div className="thumb-overlay"></div>
+                                            </motion.div>
+                                        ))}
+                                    </div>
                                 </div>
                             </motion.div>
 
@@ -232,12 +277,31 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                                 </div>
                             </div>
 
-                            <h1 className="model-name">{model.name}</h1>
+                            <h1 className="model-name">{fullModel.name}</h1>
 
-                            <p className="model-brief">
-                                Professional architectural asset precision-tuned for additive manufacturing.
-                                Features internal reinforcement and validated print pathing.
-                            </p>
+                            <div className="description-container" style={{
+                                minHeight: '80px',
+                                maxHeight: '200px',
+                                overflowY: 'auto',
+                                marginBottom: '2.5rem',
+                                paddingRight: '1rem'
+                            }}>
+                                <p className="model-brief" style={{ margin: 0 }}>
+                                    {loadingDetails ? (
+                                        <motion.span
+                                            initial={{ opacity: 0.5 }}
+                                            animate={{ opacity: [0.5, 1, 0.5] }}
+                                            transition={{ repeat: Infinity, duration: 1.5 }}
+                                        >
+                                            Loading authentic technical details...
+                                        </motion.span>
+                                    ) : fullModel.description ? (
+                                        <span dangerouslySetInnerHTML={{ __html: fullModel.description }} />
+                                    ) : (
+                                        "Professional architectural asset precision-tuned for additive manufacturing. Features internal reinforcement and validated print pathing."
+                                    )}
+                                </p>
+                            </div>
 
                             <div className="integrated-dashboard">
                                 {/* Technical Specs Card */}
@@ -277,7 +341,7 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                                             <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#555566', letterSpacing: '0.15em', textTransform: 'uppercase' }}>PRICE</div>
                                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.2rem', lineHeight: 1 }}>
                                                 <span className="sym">₹</span>
-                                                <span className="val">{model.price}</span>
+                                                <span className="val">{fullModel.price === 0 ? 'Free' : fullModel.price}</span>
                                             </div>
                                         </div>
                                         <div className="action-stack" style={{ marginLeft: 'auto' }}>
@@ -349,14 +413,74 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                 </div>
 
                 <style>{`
-                    .detail-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 6rem; align-items: start; }
-                    .main-stage { position: relative; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 40px; padding: 2rem; backdrop-filter: blur(10px); }
-                    .img-frame { position: relative; width: 100%; aspect-ratio: 1; border-radius: 30px; overflow: hidden; box-shadow: 0 50px 100px -40px rgba(0,0,0,0.8); }
-                    .img-frame img { width: 100%; height: 100%; object-fit: cover; }
-                    .expand-trigger { position: absolute; bottom: 1.5rem; right: 1.5rem; width: 50px; height: 50px; border-radius: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-                    .gallery-thumbs { display: flex; gap: 1.5rem; margin-top: 2rem; }
-                    .thumb-item { width: 90px; height: 90px; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-                    .thumb-item.active { border-color: ${primaryTeal}; }
+                    .detail-grid { 
+                        display: grid; 
+                        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); 
+                        gap: 6rem; 
+                        align-items: start; 
+                        width: 100%;
+                    }
+                    .main-stage { 
+                        position: relative; 
+                        background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0) 100%);
+                        border: 1px solid rgba(255,255,255,0.05); 
+                        border-radius: 40px; 
+                        padding: 1.5rem; 
+                        backdrop-filter: blur(10px);
+                        width: 100%;
+                        max-width: 100%;
+                    }
+                    .img-frame { 
+                        position: relative; 
+                        width: 100%; 
+                        aspect-ratio: 1; /* Change to square for stability */
+                        border-radius: 24px; 
+                        overflow: hidden; 
+                        background: rgba(0,0,0,0.4);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+                    .img-frame img { 
+                        width: 100%; 
+                        height: 100%; 
+                        object-fit: cover;
+                        image-rendering: high-quality;
+                        padding: 0;
+                        display: block;
+                    }
+                    .expand-trigger { position: absolute; bottom: 1rem; right: 1rem; width: 44px; height: 44px; border-radius: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; z-index: 5; }
+                    .expand-trigger:hover { background: ${primaryTeal}; color: #000; }
+                    
+                    .gallery-thumbs { 
+                        display: flex; 
+                        gap: 1rem; 
+                        overflow-x: auto; 
+                        padding-bottom: 0.75rem;
+                        -webkit-overflow-scrolling: touch;
+                        scrollbar-width: thin;
+                        scrollbar-color: ${primaryTeal}20 transparent;
+                    }
+                    .gallery-thumbs::-webkit-scrollbar { height: 4px; }
+                    .gallery-thumbs::-webkit-scrollbar-track { background: transparent; }
+                    .gallery-thumbs::-webkit-scrollbar-thumb { background: rgba(112, 228, 222, 0.1); border-radius: 10px; }
+                    
+                    .thumb-item { 
+                        flex: 0 0 84px; 
+                        height: 84px; 
+                        border-radius: 14px; 
+                        overflow: hidden; 
+                        border: 2px solid rgba(255,255,255,0.05); 
+                        cursor: pointer; 
+                        position: relative;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    }
+                    .thumb-item.active { border-color: ${primaryTeal}; box-shadow: 0 0 15px ${primaryTeal}30; }
+                    .thumb-item img { width: 100%; height: 100%; object-fit: cover; }
+                    .thumb-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.2); transition: opacity 0.3s; }
+                    .thumb-item:hover .thumb-overlay { opacity: 0; }
+                    .thumb-item.active .thumb-overlay { opacity: 0; }
+                    
                     .circle-btn { width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
                     .header-meta { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
                     .cat-badge { padding: 0.5rem 1rem; background: rgba(112,228,222,0.1); color: ${primaryTeal}; border-radius: 100px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.1em; }
@@ -393,6 +517,13 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                     .m-label { font-size: 0.65rem; color: #555566; font-weight: 800; text-transform: uppercase; }
                     .m-val { font-size: 0.85rem; color: #fff; font-weight: 600; white-space: nowrap; }
 
+                    .description-container::-webkit-scrollbar { width: 4px; }
+                    .description-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+                    .description-container::-webkit-scrollbar-thumb { background: rgba(112, 228, 222, 0.2); border-radius: 10px; }
+                    
+                    .model-brief img { max-width: 100%; height: auto; border-radius: 10px; margin: 1rem 0; }
+                    .model-brief p { margin-bottom: 1rem; }
+                    
                     @media (max-width: 1024px) {
                         .detail-grid { grid-template-columns: 1fr; gap: 4rem; }
                         .integrated-dashboard { grid-template-columns: 1fr; }
@@ -418,18 +549,20 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                             position: 'fixed',
                             inset: 0,
                             background: 'rgba(0,0,0,0.95)',
-                            zIndex: 2000,
+                            zIndex: 10000,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}
                     >
-                        <img src={mockGallery[selectedImg]} style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '20px' }} alt="Full View" />
+                        <img src={galleryImages[selectedImg]} style={{ maxWidth: '90%', maxHeight: '90%', borderRadius: '20px' }} alt="Full View" />
                     </motion.div>
                 )}
             </AnimatePresence>
         </motion.div>
     );
+
+    return createPortal(modalContent, document.body);
 };
 
 export default ModelDetailOverlay;
