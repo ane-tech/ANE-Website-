@@ -13,6 +13,7 @@ import IndustryPage from './pages/IndustryPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import Account from './pages/Account';
+import Login from './pages/Login';
 import ServicesSection from './components/ServicesSection';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
@@ -47,6 +48,7 @@ function App() {
           <Route path="/services" element={<ServicesSection isFullPage={true} />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/login" element={<Login />} />
 
           {/* Industry Routes */}
           <Route path="/industries/:industryType" element={<IndustryPage />} />

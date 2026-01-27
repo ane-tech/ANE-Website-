@@ -41,7 +41,7 @@ const ModelList = () => {
     const fetchModels = async (currentPage) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:5000/api/models?page=${currentPage}`);
+            const response = await fetch(`/api/models?page=${currentPage}`);
             if (!response.ok) throw new Error('Failed to fetch from backend');
 
             const data = await response.json();

@@ -70,7 +70,7 @@ const ModelDetailOverlay = ({ model, onClose }) => {
                     // Strip the "p1-0-" suffix logic if it exists from the list view ID generation
                     const realId = String(model.id).split('-')[0];
 
-                    const response = await fetch(`http://localhost:5000/api/models/${realId}`);
+                    const response = await fetch(`/api/models/${realId}`);
                     if (response.ok) {
                         const details = await response.json();
                         setFullModel(prev => ({ ...prev, ...details }));
