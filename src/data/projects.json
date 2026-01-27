@@ -16,7 +16,8 @@
             "/src/assets/portfolio/heart.png",
             "/src/assets/portfolio/heart.png"
         ],
-        "details": "Used for pre-surgical planning at XYZ Hospital. Enabled surgeons to visualize complex anatomy and plan procedures more effectively. The model was printed using high-resolution FDM technology with biocompatible PLA material."
+        "details": "Used for pre-surgical planning at XYZ Hospital. Enabled surgeons to visualize complex anatomy and plan procedures more effectively. The model was printed using high-resolution FDM technology with biocompatible PLA material.",
+        "price": 5000
     },
     {
         "id": 2,
@@ -35,7 +36,8 @@
             "/src/assets/portfolio/prosthetic.png",
             "/src/assets/portfolio/prosthetic.png"
         ],
-        "details": "A fully functional prosthetic arm designed for a patient with transradial amputation. Features lightweight lattice structure for breathability and integrated mounting points for myoelectric sensors."
+        "details": "A fully functional prosthetic arm designed for a patient with transradial amputation. Features lightweight lattice structure for breathability and integrated mounting points for myoelectric sensors.",
+        "price": 12000
     },
     {
         "id": 3,
@@ -54,6 +56,7 @@
             "/src/assets/portfolio/engine.png",
             "/src/assets/portfolio/engine.png"
         ],
-        "details": "Rapid prototyping of a V8 engine block to validate cooling channels and assembly tolerances. Printed in Nylon 12 using SLS technology for high durability and thermal resistance."
+        "details": "Rapid prototyping of a V8 engine block to validate cooling channels and assembly tolerances. Printed in Nylon 12 using SLS technology for high durability and thermal resistance.",
+        "price": 1500
     }
 ]

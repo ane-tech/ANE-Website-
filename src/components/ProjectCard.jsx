@@ -1,15 +1,66 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, X, Calendar, Tag, Layers } from 'lucide-react';
+import { ArrowUpRight, X, Calendar, Tag, Layers, ShoppingCart, Box, ExternalLink } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import LoginModal from './LoginModal';
 
 // Helper to resolve images
 const images = import.meta.glob(['/src/assets/portfolio/*.{png,jpg,jpeg,svg}', '/src/assets/industry/*.{png,jpg,jpeg,svg}'], { eager: true });
 
 const ProjectCard = ({ project }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const imageSrc = images[project.image]?.default || project.image;
     const galleryImages = project.gallery?.map(img => images[img]?.default || img) || [];
+
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const primaryTeal = '#70e4de';
+
+    const handleAddToCart = (e) => {
+        e.stopPropagation();
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const existingIndex = cart.findIndex(item => item.id === project.id);
+
+        // Ensure price exists or default to a value (though we added them to JSON)
+        const itemPrice = project.price || 0;
+        // Ensure image is fully resolved for cart
+        const cartItem = {
+            ...project,
+            image: imageSrc,
+            price: itemPrice,
+            quantity: 1
+        };
+
+        let updatedCart;
+        if (existingIndex > -1) {
+            updatedCart = [...cart];
+            updatedCart[existingIndex].quantity += 1;
+        } else {
+            updatedCart = [...cart, cartItem];
+        }
+
+        localStorage.setItem('cart', JSON.stringify(updatedCart));
+        window.dispatchEvent(new Event('cartUpdated'));
+
+        // Optional: Navigate to cart or show success. For now, let's navigate to cart as feedback.
+        navigate('/cart');
+    };
+
+    const handleView3D = (e) => {
+        e.stopPropagation();
+        // Placeholder for 3D viewer integration
+        // Could navigate to a model page or open a viewer overlay
+        // For now, we'll alert or if there was a real model ID we'd use it
+        alert("Interactive 3D Viewer loading... (Integration coming soon)");
+    };
 
     return (
         <>
@@ -52,24 +103,26 @@ const ProjectCard = ({ project }) => {
                     }} />
 
                     {/* Featured Badge */}
-                    {project.featured && (
-                        <div style={{
-                            position: 'absolute',
-                            top: '1.5rem',
-                            right: '1.5rem',
-                            padding: '0.4rem 0.8rem',
-                            background: 'linear-gradient(135deg, #70e4de 0%, #4db6b0 100%)',
-                            color: '#050508',
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            borderRadius: '50px',
-                            letterSpacing: '0.05em',
-                            boxShadow: '0 4px 12px rgba(112, 228, 222, 0.3)',
-                            zIndex: 10
-                        }}>
-                            FEATURED
-                        </div>
-                    )}
+                    {/* Industry Badge - Top Right */}
+                    <div style={{
+                        position: 'absolute',
+                        top: '1.5rem',
+                        right: '1.5rem',
+                        padding: '0.4rem 0.9rem',
+                        background: 'rgba(112, 228, 222, 0.1)',
+                        border: '1px solid rgba(112, 228, 222, 0.3)',
+                        backdropFilter: 'blur(4px)',
+                        borderRadius: '50px',
+                        fontSize: '0.75rem',
+                        color: '#70e4de',
+                        fontWeight: 700,
+                        letterSpacing: '0.05em',
+                        width: 'fit-content',
+                        zIndex: 10,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }}>
+                        {project.industry ? project.industry.toUpperCase() : 'PROJECT'}
+                    </div>
 
                     {/* Content */}
                     <div style={{
@@ -81,21 +134,7 @@ const ProjectCard = ({ project }) => {
                         justifyContent: 'flex-end'
                     }}>
                         {/* Industry Badge */}
-                        <div style={{
-                            display: 'inline-block',
-                            alignSelf: 'flex-start',
-                            padding: '0.35rem 0.9rem',
-                            background: 'rgba(112, 228, 222, 0.15)',
-                            border: '1px solid rgba(112, 228, 222, 0.3)',
-                            borderRadius: '50px',
-                            fontSize: '0.75rem',
-                            color: '#70e4de',
-                            marginBottom: '1.5rem',
-                            letterSpacing: '0.05em',
-                            fontWeight: 600
-                        }}>
-                            {project.industry.toUpperCase()}
-                        </div>
+
 
                         <h3 style={{
                             fontSize: '1.5rem',
@@ -168,6 +207,9 @@ const ProjectCard = ({ project }) => {
           }
         `}</style>
             </motion.div>
+
+            {/* Login Modal */}
+            <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
 
             {/* Expanded Modal */}
             {createPortal(
@@ -318,21 +360,9 @@ const ProjectCard = ({ project }) => {
                                                     letterSpacing: '0.05em',
                                                     fontWeight: 600
                                                 }}>
-                                                    {project.industry.toUpperCase()}
+                                                    {project.industry ? project.industry.toUpperCase() : 'PROJECT'}
                                                 </span>
-                                                {project.featured && (
-                                                    <span style={{
-                                                        padding: '0.5rem 1rem',
-                                                        background: 'linear-gradient(135deg, #70e4de 0%, #4db6b0 100%)',
-                                                        color: '#050508',
-                                                        fontSize: '0.75rem',
-                                                        fontWeight: 700,
-                                                        borderRadius: '50px',
-                                                        letterSpacing: '0.05em'
-                                                    }}>
-                                                        FEATURED
-                                                    </span>
-                                                )}
+
                                             </div>
 
                                             <h2 style={{
@@ -361,6 +391,68 @@ const ProjectCard = ({ project }) => {
                                                     <Layers size={18} style={{ color: '#70e4de' }} />
                                                     <span style={{ color: '#8a8a9a', fontSize: '0.9rem' }}>{project.tags[0]}</span>
                                                 </div>
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+                                                <button
+                                                    onClick={handleAddToCart}
+                                                    className="btn-primary"
+                                                    style={{
+                                                        padding: '1rem 1.75rem',
+                                                        background: primaryTeal,
+                                                        color: '#050508',
+                                                        border: 'none',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.95rem',
+                                                        fontWeight: 700,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.75rem',
+                                                        cursor: 'pointer',
+                                                        transition: 'transform 0.2s ease',
+                                                        flex: 1,
+                                                        justifyContent: 'center'
+                                                    }}
+                                                    onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                                                    onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                                                >
+                                                    <ShoppingCart size={18} />
+                                                    Buy Now {project.price ? `(₹${project.price.toLocaleString()})` : ''}
+                                                </button>
+
+                                                <button
+                                                    onClick={handleView3D}
+                                                    style={{
+                                                        padding: '1rem 1.75rem',
+                                                        background: 'rgba(255,255,255,0.05)',
+                                                        color: 'white',
+                                                        border: '1px solid rgba(255,255,255,0.1)',
+                                                        borderRadius: '12px',
+                                                        fontSize: '0.95rem',
+                                                        fontWeight: 600,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '0.75rem',
+                                                        cursor: 'pointer',
+                                                        transition: 'all 0.2s ease',
+                                                        flex: 1,
+                                                        justifyContent: 'center'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.target.style.background = 'rgba(255,255,255,0.1)';
+                                                        e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+                                                        e.target.style.transform = 'translateY(-2px)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.target.style.background = 'rgba(255,255,255,0.05)';
+                                                        e.target.style.borderColor = 'rgba(255,255,255,0.1)';
+                                                        e.target.style.transform = 'translateY(0)';
+                                                    }}
+                                                >
+                                                    <Box size={18} />
+                                                    View 3D Model
+                                                </button>
                                             </div>
 
                                             <div style={{ marginBottom: '2rem' }}>

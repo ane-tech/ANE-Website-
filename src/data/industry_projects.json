@@ -16,7 +16,8 @@
             "/src/assets/industry/healthcare.png",
             "/src/assets/industry/healthcare.png"
         ],
-        "details": "This spinal implant features a porosity gradient designed to match human bone density, promoting faster healing and integration. Manufactured using DMLS technology with Grade 23 Titanium."
+        "details": "This spinal implant features a porosity gradient designed to match human bone density, promoting faster healing and integration. Manufactured using DMLS technology with Grade 23 Titanium.",
+        "price": 8500
     },
     {
         "id": 102,
@@ -35,7 +36,8 @@
             "/src/assets/industry/art.png",
             "/src/assets/industry/art.png"
         ],
-        "details": "A 2-meter tall sculpture printed in sections using Silk Gold PLA. The voronoi pattern minimizes material usage while maintaining structural integrity and creating stunning shadow plays."
+        "details": "A 2-meter tall sculpture printed in sections using Silk Gold PLA. The voronoi pattern minimizes material usage while maintaining structural integrity and creating stunning shadow plays.",
+        "price": 24000
     },
     {
         "id": 103,
@@ -54,7 +56,8 @@
             "/src/assets/industry/education.png",
             "/src/assets/industry/education.png"
         ],
-        "details": "Designed to help students visualize complex molecular bonds. Parts are printed in durable Nylon 12 and click together with satisfying haptic feedback using embedded magnets."
+        "details": "Designed to help students visualize complex molecular bonds. Parts are printed in durable Nylon 12 and click together with satisfying haptic feedback using embedded magnets.",
+        "price": 1200
     },
     {
         "id": 104,
@@ -73,6 +76,7 @@
             "/src/assets/industry/electronics.png",
             "/src/assets/industry/electronics.png"
         ],
-        "details": "Rapid prototyping of a racing drone frame. The carbon-fiber reinforced nylon creates an incredibly stiff yet lightweight structure, perfect for high-speed flight maneuvers."
+        "details": "Rapid prototyping of a racing drone frame. The carbon-fiber reinforced nylon creates an incredibly stiff yet lightweight structure, perfect for high-speed flight maneuvers.",
+        "price": 3500
     }
 ]
