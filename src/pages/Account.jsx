@@ -49,6 +49,14 @@ const Account = () => {
     const [cartItems, setCartItems] = useState([]);
     const [selectedModel, setSelectedModel] = useState(null);
 
+    const [profileData, setProfileData] = useState({
+        name: user?.displayName || "New User",
+        email: user?.email || "",
+        phone: localStorage.getItem(`phone_${user?.uid}`) || "---",
+        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"],
+        avatar: localStorage.getItem(`avatar_${user?.uid}`) || user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.displayName || 'user'}`
+    });
+
     useEffect(() => {
         const loadSavedData = () => {
             const defaultFavs = [
@@ -104,13 +112,6 @@ const Account = () => {
         localStorage.setItem('favorites', JSON.stringify(updated));
         window.dispatchEvent(new Event('wishlistUpdated'));
     };
-    const [profileData, setProfileData] = useState({
-        name: user?.displayName || "New User",
-        email: user?.email || "",
-        phone: localStorage.getItem(`phone_${user?.uid}`) || "---",
-        specializations: ["Aerospace", "Medical Devices", "Rapid Prototyping"],
-        avatar: localStorage.getItem(`avatar_${user?.uid}`) || user?.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.displayName || 'user'}`
-    });
 
     useEffect(() => {
         if (user?.uid) {

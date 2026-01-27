@@ -139,7 +139,7 @@ const ModelDetailOverlay = ({ model, onClose }) => {
         text = text.replace(/Summary/gi, '')
             .replace(/Overview/gi, '')
             .replace(/Description/gi, '')
-            .replace(/[:\-]/g, ' ')
+            .replace(/[:-]/g, ' ')
             .trim();
 
         // Split into sentences and filter out very short junk
