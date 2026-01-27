@@ -172,11 +172,15 @@ const ModelDetailOverlay = ({ model, onClose }) => {
 
     const handleWhatsAppOrder = () => {
         const phoneNumber = "918235438812"; // Your WhatsApp Number
-        const message = `   *NEW ORDER FROM ANE WEBSITE* 
+        const message = `*NEW ORDER FROM ANE WEBSITE*
+
 *Model Name:* ${fullModel.name}
- *Category:* ${fullModel.category} 
-*Quantity:* ${quantity || 1} 
-                                  *Preview:* ${fullModel.image || (fullModel.images && fullModel.images[0])} 
+
+*Category:* ${fullModel.category}
+
+*Quantity:* ${quantity || 1}
+
+*Preview:* ${fullModel.image || (fullModel.images && fullModel.images[0])}
 
 Please confirm the order and provide further details.`;
 
