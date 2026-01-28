@@ -228,8 +228,8 @@ const Terminal = () => {
                       </motion.div>
                       <span style={styles.lockText}>MESH GENERATION COMPLETE</span>
                       <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                        <a href={result} download="model.obj" style={styles.actionBtn}>
-                          <Download size={16} /> DOWNLOAD
+                        <a href={result} download="model.stl" style={styles.actionBtn}>
+                          <Download size={16} /> DOWNLOAD STL
                         </a>
                         <button onClick={reset} style={{ ...styles.actionBtn, background: 'rgba(255,255,255,0.1)' }}>
                           <RefreshCcw size={16} />

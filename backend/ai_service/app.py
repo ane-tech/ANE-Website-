@@ -49,13 +49,13 @@ async def generate_3d(image: UploadFile = File(...)):
         )
         
         from fastapi.responses import FileResponse
-        model_path = os.path.join(output_folder, "mesh.obj")
+        model_path = os.path.join(output_folder, "model.stl")
         print(f"Generation successful. Returning: {model_path}")
         
         return FileResponse(
             path=model_path,
-            filename="model.obj",
-            media_type="application/octet-stream"
+            filename="model.stl",
+            media_type="application/sla"
         )
     except Exception as e:
         print(f"Error: {str(e)}")

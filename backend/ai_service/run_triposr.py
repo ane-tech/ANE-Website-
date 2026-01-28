@@ -42,9 +42,11 @@ try:
         scene = model([image], device=device)
 
     print("Extracting mesh...")
-    mesh = model.extract_mesh(scene, True, resolution=128)[0]
+    # Increased resolution to 256 for better quality (HF has 16GB RAM)
+    mesh = model.extract_mesh(scene, True, resolution=256)[0]
     
-    output_path = os.path.join(output_dir, "mesh.obj")
+    # Use .stl for maximum compatibility with 3D printing slicers (Cura, Bambu Studio, etc.)
+    output_path = os.path.join(output_dir, "model.stl")
     mesh.export(output_path)
     print(f"Mesh saved to {output_path}")
 
