@@ -30,6 +30,14 @@ app.get('/', (req, res) => {
     res.send({ message: 'ANE API is running...' });
 });
 
+app.get('/api/health', (req, res) => {
+    res.send({
+        status: 'ok',
+        has_token: !!process.env.THINGIVERSE_TOKEN,
+        token_prefix: process.env.THINGIVERSE_TOKEN ? process.env.THINGIVERSE_TOKEN.substring(0, 4) : 'none'
+    });
+});
+
 // Start Server
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     app.listen(PORT, () => {

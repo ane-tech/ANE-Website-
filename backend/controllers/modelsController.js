@@ -14,10 +14,12 @@ export const getPopularModels = async (req, res) => {
             return res.status(500).json({ message: 'Thingiverse Token is missing' });
         }
 
+        console.log('Fetching from Thingiverse with token starting with:', token.substring(0, 4) + '...');
         const response = await fetch(`${THINGIVERSE_API_URL}/popular?page=${page}&per_page=12`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'User-Agent': 'ANE-3D-Model-Library/1.0'
             }
         });
 
@@ -83,8 +85,18 @@ export const getModelDetails = async (req, res) => {
 
         // Fetch details and images in parallel
         const [detailsReq, imagesReq] = await Promise.all([
-            fetch(`${THINGIVERSE_API_URL}/things/${id}`, { headers: { 'Authorization': `Bearer ${token}` } }),
-            fetch(`${THINGIVERSE_API_URL}/things/${id}/images`, { headers: { 'Authorization': `Bearer ${token}` } })
+            fetch(`${THINGIVERSE_API_URL}/things/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'User-Agent': 'ANE-3D-Model-Library/1.0'
+                }
+            }),
+            fetch(`${THINGIVERSE_API_URL}/things/${id}/images`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'User-Agent': 'ANE-3D-Model-Library/1.0'
+                }
+            })
         ]);
 
         if (!detailsReq.ok) {
