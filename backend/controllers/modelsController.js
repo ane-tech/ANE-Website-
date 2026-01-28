@@ -30,25 +30,25 @@ export const getPopularModels = async (req, res) => {
 
         const data = await response.json();
 
+        if (!Array.isArray(data)) {
+            console.error('Thingiverse returned non-array data:', data);
+            return res.status(500).json({ message: 'Invalid response from Thingiverse', detail: typeof data });
+        }
+
         const transformedModels = data.map(item => {
-            // Attempt to get a higher quality preview for the list view
-            // Most Thingiverse thumbnails can be converted to larger previews by URL pattern
+            // ... (rest of transformation logic)
             const highResImage = item.thumbnail?.replace('thumb_medium', 'large')
                 .replace('thumb_small', 'large') || item.thumbnail;
 
-            // Derive a realistic but stable price based on model properties
-            // We use the ID as a seed to keep the price consistent for each model
             const basePrice = (item.id % 20) * 100 + 499;
             const complexityBonus = item.like_count > 500 ? 500 : 0;
             const finalPrice = basePrice + complexityBonus;
 
-            // Precision Data-Driven Rating Formula (Targeting 3.4 - 5.0)
             const likesWeight = (item.like_count || 0) * 0.12;
             const makesWeight = (item.make_count || 0) * 2.5;
             const qualityScore = likesWeight + makesWeight;
 
             const baseRating = 3.4;
-            // Precision divisor to ensure popular items spread across 3.x and 4.x
             const calculatedBonus = Math.min(1.6, qualityScore / 15000);
             const finalRating = (baseRating + calculatedBonus).toFixed(1);
 
@@ -62,7 +62,6 @@ export const getPopularModels = async (req, res) => {
                 description: item.description,
                 downloads: item.download_count || 0,
                 like_count: item.like_count,
-                // Combine metrics to ensure a robust "sales" figure
                 sales: (item.collect_count || 0) + (item.like_count || 0) || Math.floor(Math.random() * 500) + 100
             };
         });
@@ -73,8 +72,8 @@ export const getPopularModels = async (req, res) => {
         res.status(200).json(shuffledModels);
 
     } catch (error) {
-        console.error('Server Error:', error);
-        res.status(500).json({ message: 'Server Error fetching models' });
+        console.error('Thingiverse Fetch Error:', error);
+        res.status(500).json({ message: `Server Error: ${error.message}`, stack: error.stack?.split('\n')[0] });
     }
 };
 
