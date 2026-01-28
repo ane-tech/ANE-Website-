@@ -164,8 +164,11 @@ export const generate3DModel = async (req, res) => {
         const form = new FormData();
         form.append("image", fs.createReadStream(imagePath));
 
+        const aiServiceUrl = process.env.AI_SERVICE_URL || "http://127.0.0.1:8001";
+        console.log(`Sending 3D generation request to: ${aiServiceUrl}/generate-3d`);
+
         const response = await axios.post(
-            "http://127.0.0.1:8001/generate-3d",
+            `${aiServiceUrl}/generate-3d`,
             form,
             {
                 headers: form.getHeaders(),
