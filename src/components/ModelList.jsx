@@ -55,7 +55,7 @@ const ModelList = () => {
             }
         } catch (err) {
             console.error("Error loading models:", err);
-            setError(err.message);
+            setError(`Connection Error: ${err.message}. Please check if the API is configured correctly in Vercel.`);
             if (currentPage === 1) setModels(initialModels);
         } finally {
             setLoading(false);
@@ -334,6 +334,20 @@ const ModelList = () => {
                             Displaying <strong style={{ color: '#fff' }}>{filteredModels.length}</strong> {filteredModels.length === 1 ? 'result' : 'results'} matching your search
                         </span>
                     </motion.div>
+                )}
+                {error && (
+                    <div style={{
+                        padding: '1rem',
+                        margin: '1rem 0',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderRadius: '12px',
+                        color: '#ef4444',
+                        textAlign: 'center',
+                        fontSize: '0.9rem'
+                    }}>
+                        {error}
+                    </div>
                 )}
 
                 {/* Models Grid */}
