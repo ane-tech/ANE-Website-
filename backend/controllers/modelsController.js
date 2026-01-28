@@ -1,4 +1,7 @@
 import fetch from 'node-fetch';
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
 
 const THINGIVERSE_API_URL = 'https://api.thingiverse.com';
 
@@ -137,5 +140,53 @@ export const getModelDetails = async (req, res) => {
     } catch (error) {
         console.error('Detail Fetch Error:', error);
         res.status(500).json({ message: 'Error fetching model details' });
+    }
+};
+
+export const generate3DModel = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: "No image file provided" });
+        }
+        const imagePath = req.file.path;
+
+        const form = new FormData();
+        form.append("image", fs.createReadStream(imagePath));
+
+        const response = await axios.post(
+            "http://127.0.0.1:8001/generate-3d",
+            form,
+            {
+                headers: form.getHeaders(),
+                timeout: 0
+            }
+        );
+
+        if (response.data.status !== 'success') {
+            throw new Error(response.data.message || "AI Engine failed to generate model");
+        }
+
+        const modelPath = response.data.model_path;
+
+        if (!modelPath) {
+            throw new Error("AI Engine did not return a model path");
+        }
+
+        res.download(modelPath, "model.obj", (err) => {
+            if (err) {
+                console.error("Download error:", err);
+            }
+        });
+    } catch (err) {
+        console.error("3D Generation Error:", err.message);
+        if (err.response) {
+            console.error("AI Service Response Data:", err.response.data);
+            console.error("AI Service Status Code:", err.response.status);
+        }
+        res.status(500).json({
+            error: "3D generation failed",
+            details: err.message,
+            ai_status: err.response ? err.response.status : 'Service Offline'
+        });
     }
 };

@@ -1,9 +1,12 @@
 import express from 'express';
-import { getPopularModels, getModelDetails } from '../controllers/modelsController.js';
+import multer from "multer";
+import { getPopularModels, getModelDetails, generate3DModel } from '../controllers/modelsController.js';
 
 const router = express.Router();
+const upload = multer({ dest: "uploads/" });
 
 router.get('/', getPopularModels);
 router.get('/:id', getModelDetails);
+router.post("/generate-3d", upload.single("image"), generate3DModel);
 
 export default router;
