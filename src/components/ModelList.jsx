@@ -44,8 +44,15 @@ const ModelList = () => {
             const response = await fetch(`/api/models?page=${currentPage}`);
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(`API Error ${response.status}: ${errorData.message || response.statusText || 'Unknown Error'}`);
+                const text = await response.text();
+                let message = 'Unknown Error';
+                try {
+                    const errorData = JSON.parse(text);
+                    message = errorData.message || response.statusText;
+                } catch (e) {
+                    message = text.substring(0, 100); // Show first 100 chars of HTML if it's not JSON
+                }
+                throw new Error(`API Error ${response.status}: ${message}`);
             }
 
             const data = await response.json();

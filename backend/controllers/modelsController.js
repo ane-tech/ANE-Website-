@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+// Native fetch is available in Node 18+, no import needed
 import axios from "axios";
 import FormData from "form-data";
 import fs from "fs";
