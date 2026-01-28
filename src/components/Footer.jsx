@@ -25,7 +25,7 @@ const Footer = () => {
                                 <span style={{ fontSize: '1.75rem', fontWeight: 700, color: '#70e4de' }}>ANE</span>
                             </Link>
                             <p style={{ color: '#8a8a9a', fontSize: '0.9rem', lineHeight: 1.8, marginBottom: '1.5rem' }}>
-                                Leading the way in additive manufacturing since 2018. We transform digital concepts into reality.
+                                ANE is an advanced 3D ecosystem merging AI-driven generation with industrial additive manufacturing. From 2D images to print-ready models, we redefine digital creation.
                             </p>
                             <div style={{ display: 'flex', gap: '0.75rem' }}>
                                 {[Facebook, Twitter, Instagram, Linkedin].map((Icon, i) => (
@@ -128,17 +128,24 @@ const Footer = () => {
                             <ul style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                                 <li style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                                     <MapPin size={18} style={{ color: '#70e4de', marginTop: '2px', flexShrink: 0 }} />
-                                    <span style={{ color: '#e0e0e0', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                                        123 Innovation Drive<br />Digital City, 00100
-                                    </span>
+                                    <a
+                                        href="https://www.google.com/maps/search/?api=1&query=Central+Institute+of+Technology+Kokrajhar"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ color: '#e0e0e0', fontSize: '0.95rem', lineHeight: 1.6, textDecoration: 'none' }}
+                                        className="footer-link"
+                                    >
+                                        Central Institute of Technology,<br />
+                                        Kokrajhar, Assam
+                                    </a>
                                 </li>
                                 <li style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <Phone size={18} style={{ color: '#70e4de' }} />
-                                    <a href="tel:+1555000000" style={{ color: '#e0e0e0', fontSize: '0.95rem' }}>+1 (555) 000-0000</a>
+                                    <a href="tel:6003437947" style={{ color: '#e0e0e0', fontSize: '0.95rem' }}>6003437947</a>
                                 </li>
                                 <li style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <Mail size={18} style={{ color: '#70e4de' }} />
-                                    <a href="mailto:hello@ane3d.com" style={{ color: '#e0e0e0', fontSize: '0.95rem' }}>hello@ane3d.com</a>
+                                    <a href="mailto:ane128278@gmail.com" style={{ color: '#e0e0e0', fontSize: '0.95rem' }}>ane128278@gmail.com</a>
                                 </li>
                             </ul>
                         </div>
