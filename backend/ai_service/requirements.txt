@@ -10,3 +10,8 @@ transformers
 omegaconf
 einops
 scikit-image
+trimesh
+huggingface_hub
+jaxtyping
+diffusers
+accelerate

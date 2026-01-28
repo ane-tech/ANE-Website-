@@ -122,12 +122,15 @@ const Terminal = () => {
 
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev < 90) return prev + Math.random() * 5;
+          if (prev < 95) return prev + Math.random() * 2;
           return prev;
         });
-      }, 1000);
+      }, 1500);
 
-      const response = await fetch('/api/models/generate-3d', {
+      // We call the AI service DIRECTLY from the browser to bypass Vercel's 10s timeout
+      const AI_URL = "https://ane-web-ane-ai-service.hf.space/generate-3d";
+
+      const response = await fetch(AI_URL, {
         method: 'POST',
         body: formData,
       });
@@ -135,7 +138,10 @@ const Terminal = () => {
       clearInterval(progressInterval);
       setProgress(100);
 
-      if (!response.ok) throw new Error('Generation failed');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Generation failed: ${errorText}`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

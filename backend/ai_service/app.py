@@ -4,7 +4,17 @@ import subprocess
 import os
 import shutil
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 INPUT_DIR = "inputs"
 OUTPUT_DIR = "outputs"
@@ -38,13 +48,15 @@ async def generate_3d(image: UploadFile = File(...)):
             cwd=current_dir
         )
         
+        from fastapi.responses import FileResponse
         model_path = os.path.join(output_folder, "mesh.obj")
-        print(f"Generation successful. Model path: {model_path}")
+        print(f"Generation successful. Returning: {model_path}")
         
-        return {
-            "status": "success",
-            "model_path": model_path
-        }
+        return FileResponse(
+            path=model_path,
+            filename="model.obj",
+            media_type="application/octet-stream"
+        )
     except Exception as e:
         print(f"Error: {str(e)}")
         return {"status": "error", "message": str(e)}
