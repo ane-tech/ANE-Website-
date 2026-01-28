@@ -35,25 +35,25 @@ const Contact = () => {
         {
             icon: <Mail size={24} />,
             title: "Email Us",
-            details: "hello@ane-tech.com",
+            details: "ane128278@gmail.com",
             subtext: "Open Gmail to send message",
-            link: "https://mail.google.com/mail/?view=cm&fs=1&to=hello@ane-tech.com",
+            link: "https://mail.google.com/mail/?view=cm&fs=1&to=ane128278@gmail.com",
             action: "Compose Email"
         },
         {
             icon: <Phone size={24} />,
             title: "Call Us",
-            details: "+1 (555) 123-4567",
-            subtext: "Mon-Fri, 9am - 6pm EST",
-            link: "tel:+15551234567",
+            details: "+91 60034 37947",
+            subtext: "Mon-Fri, 9am - 6pm",
+            link: "tel:6003437947",
             action: "Start Call"
         },
         {
             icon: <MapPin size={24} />,
             title: "Visit Us",
-            details: "123 Innovation Drive",
-            subtext: "Tech Valley, CA 94043",
-            link: "https://www.google.com/maps/search/?api=1&query=123+Innovation+Drive+Tech+Valley+CA+94043",
+            details: "Central Institute of Technology",
+            subtext: "Kokrajhar, Assam",
+            link: "https://www.google.com/maps/search/?api=1&query=Central+Institute+of+Technology+Kokrajhar",
             action: "View on Maps"
         }
     ];
@@ -119,7 +119,7 @@ const Contact = () => {
                             </button>
 
                             <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115682.22819077!2d-122.128796!3d37.404283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fb9f826359f49%3A0xe675913cf62f026!2sInnovation%20Dr!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3561.123456789!2d90.307213!3d26.474610!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x37588e2289f61b0d%3A0x9d00d23412345678!2sCentral%20Institute%20of%20Technology%20Kokrajhar!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
                                 width="100%"
                                 height="100%"
                                 style={{ border: 0 }}
@@ -295,7 +295,7 @@ const Contact = () => {
                                     Prefer real-time conversation? Our engineering team is available on WhatsApp to answer your technical questions instantly.
                                 </p>
                                 <a
-                                    href="https://wa.me/15551234567"
+                                    href="https://wa.me/916003437947"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="btn-primary"
