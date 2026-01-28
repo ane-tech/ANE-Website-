@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import testRoutes from './routes/testRoutes.js';
+import modelRoutes from './routes/modelRoutes.js';
 
 // Configure env variables
 dotenv.config();
@@ -19,9 +21,6 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-import testRoutes from './routes/testRoutes.js';
-import modelRoutes from './routes/modelRoutes.js';
-
 app.use('/api', testRoutes);
 app.use('/api/models', modelRoutes);
 
