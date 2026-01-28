@@ -42,7 +42,11 @@ const ModelList = () => {
         try {
             setLoading(true);
             const response = await fetch(`/api/models?page=${currentPage}`);
-            if (!response.ok) throw new Error('Failed to fetch from backend');
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(`API Error ${response.status}: ${errorData.message || response.statusText || 'Unknown Error'}`);
+            }
 
             const data = await response.json();
 
@@ -55,7 +59,7 @@ const ModelList = () => {
             }
         } catch (err) {
             console.error("Error loading models:", err);
-            setError(`Connection Error: ${err.message}. Please check if the API is configured correctly in Vercel.`);
+            setError(`Production Bug Report: ${err.message}`);
             if (currentPage === 1) setModels(initialModels);
         } finally {
             setLoading(false);
