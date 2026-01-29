@@ -254,9 +254,9 @@ const Terminal = () => {
 
                   <div style={styles.stepGrid}>
                     {[
-                      { id: 'uploading', label: '1. Analyzing Silhouette', desc: 'Tracing edges and volume' },
-                      { id: 'generating', label: '2. Synthesizing Mesh', desc: 'Crafting 3D geometry' },
-                      { id: 'finalizing', label: '3. Final Polish', desc: 'Smoothing surfaces' }
+                      { id: 'uploading', label: '1. Analyzing Image', desc: 'Detecting your object\'s shape' },
+                      { id: 'generating', label: '2. Building 3D Model', desc: 'Creating the digital structure' },
+                      { id: 'finalizing', label: '3. Final Smoothing', desc: 'Polishing your model for printing' }
                     ].map((step, idx) => {
                       const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
                       const isDone = status === 'success' || (status === 'generating' && idx === 0);
@@ -518,10 +518,10 @@ const styles = {
     border: 'none', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center'
   },
 
-  emptyStateContainer: { padding: '2rem 0' },
+  emptyStateContainer: { padding: '2rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' },
   emptyTitle: { fontSize: '2.5rem', fontWeight: 100, marginBottom: '1.5rem', color: '#fff' },
-  emptyDesc: { fontSize: '1rem', color: '#777', lineHeight: 1.8, marginBottom: '2.5rem' },
-  tagRow: { display: 'flex', gap: '0.8rem' },
+  emptyDesc: { fontSize: '1rem', color: '#777', lineHeight: 1.8, marginBottom: '2.5rem', maxWidth: '400px' },
+  tagRow: { display: 'flex', gap: '0.8rem', justifyContent: 'center' },
   tag: {
     padding: '0.6rem 1.2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
     borderRadius: 100, fontSize: '0.75rem', fontWeight: 600, color: '#aaa'
