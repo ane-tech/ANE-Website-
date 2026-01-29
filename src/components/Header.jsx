@@ -102,7 +102,7 @@ const Header = () => {
               e.currentTarget.style.color = '#fff';
               e.currentTarget.style.background = 'transparent';
             }
-          }}>Design <Sparkles size={14} style={{ marginLeft: '4px' }} /></Link>
+          }}>Design</Link>
 
           {/* Industries Dropdown */}
           <div
@@ -386,7 +386,7 @@ const Header = () => {
             }}
           >
             <div className="container" style={{ padding: '1.5rem 2rem' }}>
-              <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.05)', color: location.pathname === '/design' ? '#70e4de' : '#fff' }}>Design ✨</Link>
+              <Link to="/design" style={{ display: 'block', padding: '0.75rem 0', fontSize: '1rem', fontWeight: 500, borderBottom: '1px solid rgba(255,255,255,0.05)', color: location.pathname === '/design' ? '#70e4de' : '#fff' }}>Design</Link>
 
               <div style={{ margin: '1.5rem 0' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#8a8a9a', letterSpacing: '0.1em', marginBottom: '0.75rem', display: 'block' }}>INDUSTRIES</span>

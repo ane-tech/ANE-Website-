@@ -234,7 +234,7 @@ const Terminal = () => {
               {preview && status === 'idle' && (
                 <div style={styles.buttonRow}>
                   <button onClick={handleGenerate} style={styles.magicBtn}>
-                    <Sparkles size={18} /> Start 3D Generation
+                    Start 3D Generation
                   </button>
                   <button onClick={reset} style={styles.resetBtnIcon}>
                     <RefreshCcw size={20} />
@@ -252,7 +252,8 @@ const Terminal = () => {
                     <span style={styles.studioBadge}>CREATIVE STUDIO</span>
                   </div>
 
-                  <div style={styles.stepList}>
+                  <div style={styles.stepContainer}>
+                    <div style={styles.stepVerticalLine} />
                     {[
                       { id: 'uploading', label: 'Analyzing Silhouette', desc: 'Our AI is tracing the edges and volume' },
                       { id: 'generating', label: 'Synthesizing Mesh', desc: 'Crafting high-precision 3D geometry' },
@@ -262,16 +263,17 @@ const Terminal = () => {
                       const isDone = status === 'success' || (status === 'generating' && idx === 0);
 
                       return (
-                        <div key={idx} style={{ ...styles.stepItem, opacity: isDone || isActive ? 1 : 0.3 }}>
+                        <div key={idx} style={{ ...styles.stepItem, opacity: isDone || isActive ? 1 : 0.4 }}>
                           <div style={{
                             ...styles.stepNumber,
-                            background: isDone ? '#22c55e' : isActive ? primaryTeal : 'rgba(255,255,255,0.05)',
-                            color: isDone || isActive ? '#000' : '#fff'
+                            background: isDone ? '#22c55e' : isActive ? primaryTeal : 'rgba(255,255,255,0.08)',
+                            color: isDone || isActive ? '#000' : 'rgba(255,255,255,0.4)',
+                            zIndex: 2
                           }}>
                             {isDone ? <CheckCircle2 size={12} /> : idx + 1}
                           </div>
                           <div>
-                            <div style={styles.stepLabel}>{step.label}</div>
+                            <div style={{ ...styles.stepLabel, color: isActive ? primaryTeal : '#fff' }}>{step.label}</div>
                             <div style={styles.stepDesc}>{step.desc}</div>
                           </div>
                         </div>
@@ -456,17 +458,23 @@ const styles = {
     display: 'grid', placeItems: 'center', transition: 'all 0.3s ease'
   },
 
-  infoColumn: { height: '100%' },
-  studioHeader: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2.5rem' },
+  infoColumn: { height: '100%', position: 'relative' },
+  studioHeader: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '3.5rem' },
   studioBadge: { fontSize: '0.75rem', fontWeight: 800, letterSpacing: '3px', color: '#70e4de', opacity: 0.8 },
 
-  stepList: { display: 'flex', flexDirection: 'column', gap: '1.8rem' },
-  stepItem: { display: 'flex', gap: '1.5rem', transition: 'all 0.5s ease' },
-  stepNumber: {
-    width: 32, height: 32, borderRadius: 10, display: 'grid', placeItems: 'center',
-    fontSize: '0.7rem', fontWeight: 900, transition: 'all 0.3s ease'
+  stepContainer: { display: 'flex', flexDirection: 'column', gap: '2.5rem', position: 'relative' },
+  stepVerticalLine: {
+    position: 'absolute', left: 16, top: 0, bottom: 0, width: 2,
+    background: 'linear-gradient(180deg, rgba(112,228,222,0.2) 0%, rgba(255,255,255,0.05) 100%)',
+    zIndex: 1
   },
-  stepLabel: { fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem', color: '#fff' },
+  stepItem: { display: 'flex', gap: '2.5rem', transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' },
+  stepNumber: {
+    width: 34, height: 34, borderRadius: 12, display: 'grid', placeItems: 'center',
+    fontSize: '0.8rem', fontWeight: 900, transition: 'all 0.4s ease',
+    border: '1px solid rgba(255,255,255,0.1)'
+  },
+  stepLabel: { fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem' },
   stepDesc: { fontSize: '0.85rem', color: '#666', lineHeight: 1.5 },
 
   progressSection: { marginTop: '2rem', padding: '1.5rem', background: 'rgba(112,228,222,0.03)', borderRadius: 20 },
