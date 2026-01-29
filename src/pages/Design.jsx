@@ -252,30 +252,27 @@ const Terminal = () => {
                     <span style={styles.studioBadge}>CREATIVE STUDIO</span>
                   </div>
 
-                  <div style={styles.stepContainer}>
-                    <div style={styles.stepVerticalLine} />
+                  <div style={styles.stepGrid}>
                     {[
-                      { id: 'uploading', label: 'Analyzing Silhouette', desc: 'Our AI is tracing the edges and volume' },
-                      { id: 'generating', label: 'Synthesizing Mesh', desc: 'Crafting high-precision 3D geometry' },
-                      { id: 'finalizing', label: 'Final Polish', desc: 'Smoothing surfaces and optimizing for print' }
+                      { id: 'uploading', label: '1. Analyzing Silhouette', desc: 'Tracing edges and volume' },
+                      { id: 'generating', label: '2. Synthesizing Mesh', desc: 'Crafting 3D geometry' },
+                      { id: 'finalizing', label: '3. Final Polish', desc: 'Smoothing surfaces' }
                     ].map((step, idx) => {
                       const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
                       const isDone = status === 'success' || (status === 'generating' && idx === 0);
 
                       return (
-                        <div key={idx} style={{ ...styles.stepItem, opacity: isDone || isActive ? 1 : 0.4 }}>
-                          <div style={{
-                            ...styles.stepNumber,
-                            background: isDone ? '#22c55e' : isActive ? primaryTeal : 'rgba(255,255,255,0.08)',
-                            color: isDone || isActive ? '#000' : 'rgba(255,255,255,0.4)',
-                            zIndex: 2
-                          }}>
-                            {isDone ? <CheckCircle2 size={12} /> : idx + 1}
+                        <div key={idx} style={{
+                          ...styles.stepCard,
+                          borderColor: isActive ? primaryTeal : isDone ? '#22c55e' : 'rgba(255,255,255,0.05)',
+                          background: isActive ? 'rgba(112, 228, 222, 0.03)' : 'transparent',
+                          opacity: isDone || isActive ? 1 : 0.4
+                        }}>
+                          <div style={{ ...styles.stepLabel, color: isActive ? primaryTeal : isDone ? '#22c55e' : '#fff' }}>
+                            {step.label}
                           </div>
-                          <div>
-                            <div style={{ ...styles.stepLabel, color: isActive ? primaryTeal : '#fff' }}>{step.label}</div>
-                            <div style={styles.stepDesc}>{step.desc}</div>
-                          </div>
+                          <div style={styles.stepDesc}>{step.desc}</div>
+                          {isActive && <motion.div layoutId="activeStep" style={styles.activeIndicator} />}
                         </div>
                       );
                     })}
@@ -312,6 +309,14 @@ const Terminal = () => {
                   <p style={styles.emptyDesc}>
                     Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
                   </p>
+
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    style={styles.selectImageBtn}
+                  >
+                    <ImageIcon size={18} /> Choose Project Image
+                  </button>
+
                   <div style={styles.tagRow}>
                     <span style={styles.tag}>STL Format</span>
                     <span style={styles.tag}>3D Print Ready</span>
@@ -459,23 +464,40 @@ const styles = {
   },
 
   infoColumn: { height: '100%', position: 'relative' },
-  studioHeader: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '3.5rem' },
+  studioHeader: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2.5rem' },
   studioBadge: { fontSize: '0.75rem', fontWeight: 800, letterSpacing: '3px', color: '#70e4de', opacity: 0.8 },
 
-  stepContainer: { display: 'flex', flexDirection: 'column', gap: '2.5rem', position: 'relative' },
-  stepVerticalLine: {
-    position: 'absolute', left: 16, top: 0, bottom: 0, width: 2,
-    background: 'linear-gradient(180deg, rgba(112,228,222,0.2) 0%, rgba(255,255,255,0.05) 100%)',
-    zIndex: 1
+  stepGrid: { display: 'flex', flexDirection: 'column', gap: '1rem' },
+  stepCard: {
+    padding: '1.5rem',
+    borderRadius: 20,
+    border: '1px solid',
+    position: 'relative',
+    transition: 'all 0.5s ease'
   },
-  stepItem: { display: 'flex', gap: '2.5rem', transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' },
-  stepNumber: {
-    width: 34, height: 34, borderRadius: 12, display: 'grid', placeItems: 'center',
-    fontSize: '0.8rem', fontWeight: 900, transition: 'all 0.4s ease',
-    border: '1px solid rgba(255,255,255,0.1)'
+  activeIndicator: {
+    position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 3,
+    background: '#70e4de', borderRadius: '0 4px 4px 0',
+    boxShadow: '0 0 15px #70e4de'
   },
-  stepLabel: { fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem' },
-  stepDesc: { fontSize: '0.85rem', color: '#666', lineHeight: 1.5 },
+  stepLabel: { fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.2rem' },
+  stepDesc: { fontSize: '0.85rem', color: '#666' },
+
+  selectImageBtn: {
+    padding: '1.2rem 2.5rem',
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 100,
+    color: '#fff',
+    fontSize: '0.95rem',
+    fontWeight: 600,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.8rem',
+    cursor: 'pointer',
+    marginBottom: '2.5rem',
+    transition: 'all 0.3s ease'
+  },
 
   progressSection: { marginTop: '2rem', padding: '1.5rem', background: 'rgba(112,228,222,0.03)', borderRadius: 20 },
   progressText: { display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '1rem' },
