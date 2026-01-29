@@ -127,7 +127,6 @@ const Terminal = () => {
         });
       }, 1500);
 
-      // We call the AI service DIRECTLY from the browser to bypass Vercel's 10s timeout
       const AI_URL = "https://ane-web-ane-ai-service.hf.space/generate-3d";
 
       const response = await fetch(AI_URL, {
@@ -162,77 +161,69 @@ const Terminal = () => {
   };
 
   return (
-    <section style={styles.terminalWrap}>
+    <section style={styles.studioWrap}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-        style={styles.terminal}
+        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        style={styles.studioContainer}
       >
-        <header style={styles.terminalTop}>
-          <div style={styles.dots}>
-            <span style={styles.dot} />
-            <span style={styles.dot} />
-            <span style={styles.dot} />
-          </div>
-          <span style={styles.terminalTitle}>ANE_CORE_SYSTEM // v0.1</span>
-        </header>
+        <div style={styles.studioBlur} />
 
-        <div style={styles.terminalBody}>
-          <div className="generator-grid" style={{ display: 'grid', gridTemplateColumns: preview ? '1.2fr 1fr' : '1fr', gap: '2.5rem' }}>
+        {/* Main Content Area */}
+        <div style={styles.studioContent}>
+          <div style={{ display: 'grid', gridTemplateColumns: preview ? '1fr 1.1fr' : '1fr', gap: '4rem', alignItems: 'center' }}>
 
-            {/* Left: Input/Preview */}
-            <div>
+            {/* Left Column: Visual Area */}
+            <div style={styles.visualColumn}>
               <div
+                style={styles.previewBox}
                 onClick={() => status === 'idle' && fileInputRef.current.click()}
-                style={{
-                  border: `1px dashed ${preview ? 'rgba(112, 228, 222, 0.2)' : 'rgba(112, 228, 222, 0.4)'}`,
-                  borderRadius: '24px',
-                  height: preview ? '320px' : '400px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: status === 'idle' ? 'pointer' : 'default',
-                  transition: 'all 0.4s',
-                  background: preview ? 'rgba(255,255,255,0.01)' : 'rgba(112, 228, 222, 0.02)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
               >
                 <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
 
-                {preview ? (
-                  <img src={preview} alt="Upload Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '1rem' }} />
-                ) : (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ color: primaryTeal, marginBottom: '1.5rem', opacity: 0.6 }}>
-                      <Upload size={40} style={{ margin: '0 auto' }} />
-                    </div>
-                    <h3 style={{ fontSize: '1rem', letterSpacing: '2px', fontWeight: 600, marginBottom: '0.5rem' }}>DRAG ASSET HERE</h3>
-                    <p style={{ color: '#444', fontSize: '0.8rem', fontWeight: 500 }}>NEURAL ENGINE v0.1 | STATUS: READY</p>
-                  </div>
-                )}
+                <AnimatePresence mode="wait">
+                  {!preview ? (
+                    <motion.div
+                      key="upload"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0.8 }}
+                      exit={{ opacity: 0 }}
+                      style={styles.uploadState}
+                    >
+                      <div style={styles.uploadIconCircle}>
+                        <Upload size={32} />
+                      </div>
+                      <h3 style={styles.uploadTitle}>Choose an image</h3>
+                      <p style={styles.uploadSubt}>Drag & drop or click to browse</p>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="image"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      style={{ width: '100%', height: '100%', padding: '2rem' }}
+                    >
+                      <img src={preview} alt="Input" style={styles.mainImage} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                {/* Success Overlay */}
+                {/* Status Overlays */}
                 <AnimatePresence>
                   {status === 'success' && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      style={styles.lockOverlay}
-                    >
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} style={{ color: primaryTeal, marginBottom: '1.5rem' }}>
-                        <CheckCircle2 size={48} />
-                      </motion.div>
-                      <span style={styles.lockText}>MESH GENERATION COMPLETE</span>
-                      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                        <a href={result} download="model.stl" style={styles.actionBtn}>
-                          <Download size={16} /> DOWNLOAD STL
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={styles.successOverlay}>
+                      <div style={styles.successIcon}>
+                        <CheckCircle2 size={40} />
+                      </div>
+                      <h4 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem' }}>Model Ready</h4>
+                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                        <a href={result} download="model.stl" style={styles.downloadBtn}>
+                          <Download size={18} /> Get STL
                         </a>
-                        <button onClick={reset} style={{ ...styles.actionBtn, background: 'rgba(255,255,255,0.1)' }}>
-                          <RefreshCcw size={16} />
+                        <button onClick={reset} style={styles.resetBtnSmall}>
+                          <RefreshCcw size={18} />
                         </button>
                       </div>
                     </motion.div>
@@ -240,108 +231,93 @@ const Terminal = () => {
                 </AnimatePresence>
               </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                {!preview ? (
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                    style={styles.terminalBtn}
-                    onMouseEnter={e => {
-                      e.currentTarget.style.background = 'rgba(112, 228, 222, 0.1)';
-                      e.currentTarget.style.borderColor = '#70e4de';
-                      e.currentTarget.style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                      e.currentTarget.style.borderColor = '#222';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <ImageIcon size={16} /> CLICK TO UPLOAD IMAGE (PNG, JPG)
+              {preview && status === 'idle' && (
+                <div style={styles.buttonRow}>
+                  <button onClick={handleGenerate} style={styles.magicBtn}>
+                    <Sparkles size={18} /> Start 3D Generation
                   </button>
-                ) : (
-                  status === 'idle' && (
-                    <>
-                      <button onClick={handleGenerate} style={{ ...styles.terminalBtn, background: primaryTeal, color: '#000' }}>
-                        <Sparkles size={16} /> EXECUTE: GENERATE_3D
-                      </button>
-                      <button onClick={reset} style={{ ...styles.terminalBtn, width: '60px', flex: 'none' }}>
-                        <RefreshCcw size={16} />
-                      </button>
-                    </>
-                  )
-                )}
-              </div>
+                  <button onClick={reset} style={styles.resetBtnIcon}>
+                    <RefreshCcw size={20} />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Right: Processing Steps */}
-            {preview && (
-              <div style={{ display: 'flex', flexDirection: 'column', padding: '1rem 0' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '2.5rem' }}>
-                  <Box size={18} color={primaryTeal} />
-                  <span style={{ fontSize: '0.7rem', fontWeight: 900, letterSpacing: '2px', color: primaryTeal }}>LOG_STREAM</span>
-                </div>
+            {/* Right Column: Interaction/Info */}
+            <div style={styles.infoColumn}>
+              {preview ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  <div style={styles.studioHeader}>
+                    <Box size={20} color={primaryTeal} />
+                    <span style={styles.studioBadge}>CREATIVE STUDIO</span>
+                  </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {[
-                    { id: 'uploading', label: 'NEURAL_INPUT_SCAN', desc: 'Isolating object boundaries' },
-                    { id: 'generating', label: 'GEOMETRIC_SYNTHESIS', desc: 'Executing TripoSR-AI Engine' },
-                    { id: 'finalizing', label: 'STL_GEOMETRY_FINAL', desc: 'Compiling additive-ready mesh' }
-                  ].map((step, idx) => {
-                    const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
-                    const isDone = status === 'success' || (status === 'generating' && idx === 0);
+                  <div style={styles.stepList}>
+                    {[
+                      { id: 'uploading', label: 'Analyzing Silhouette', desc: 'Our AI is tracing the edges and volume' },
+                      { id: 'generating', label: 'Synthesizing Mesh', desc: 'Crafting high-precision 3D geometry' },
+                      { id: 'finalizing', label: 'Final Polish', desc: 'Smoothing surfaces and optimizing for print' }
+                    ].map((step, idx) => {
+                      const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
+                      const isDone = status === 'success' || (status === 'generating' && idx === 0);
 
-                    return (
-                      <div key={step.id} style={{ display: 'flex', gap: '1.2rem', opacity: isDone || isActive ? 1 : 0.2 }}>
-                        <div style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '4px',
-                          border: `1px solid ${isDone ? '#22c55e' : isActive ? primaryTeal : '#222'}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: isDone ? '#22c55e' : isActive ? primaryTeal : '#222',
-                          fontSize: '10px',
-                          fontFamily: 'monospace'
-                        }}>
-                          {isDone ? <CheckCircle2 size={12} /> : idx + 1}
+                      return (
+                        <div key={idx} style={{ ...styles.stepItem, opacity: isDone || isActive ? 1 : 0.3 }}>
+                          <div style={{
+                            ...styles.stepNumber,
+                            background: isDone ? '#22c55e' : isActive ? primaryTeal : 'rgba(255,255,255,0.05)',
+                            color: isDone || isActive ? '#000' : '#fff'
+                          }}>
+                            {isDone ? <CheckCircle2 size={12} /> : idx + 1}
+                          </div>
+                          <div>
+                            <div style={styles.stepLabel}>{step.label}</div>
+                            <div style={styles.stepDesc}>{step.desc}</div>
+                          </div>
                         </div>
-                        <div>
-                          <div style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '1px', marginBottom: '4px' }}>{step.label}</div>
-                          <div style={{ fontSize: '10px', color: '#444', fontFamily: 'monospace' }}>{step.desc}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
 
                   {(status === 'uploading' || status === 'generating') && (
-                    <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontFamily: 'monospace', marginBottom: '8px' }}>
-                        <span>COMPILING_MESH...</span>
-                        <span style={{ color: primaryTeal }}>{Math.round(progress)}%</span>
+                    <div style={styles.progressSection}>
+                      <div style={styles.progressText}>
+                        <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
+                        <span>{Math.round(progress)}%</span>
                       </div>
-                      <div style={{ height: '2px', background: '#111', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={styles.progressBarBg}>
                         <motion.div
-                          initial={{ width: 0 }}
                           animate={{ width: `${progress}%` }}
-                          style={{ height: '100%', background: primaryTeal, boxShadow: `0 0 10px ${primaryTeal}` }}
+                          style={styles.progressBarFill}
                         />
                       </div>
                     </div>
                   )}
 
                   {status === 'error' && (
-                    <div style={{ marginTop: 'auto', border: '1px solid rgba(239,68,68,0.2)', padding: '1rem', borderRadius: '12px', background: 'rgba(239,68,68,0.05)', display: 'flex', gap: '0.8rem' }}>
-                      <AlertCircle size={16} color="#ef4444" />
-                      <div style={{ color: '#ef4444', fontSize: '10px', fontFamily: 'monospace' }}>
-                        ERROR_ACCESS_REJECTED: ENGINE_TIMED_OUT
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={styles.errorCard}>
+                      <AlertCircle size={20} />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Connection Interrupted</div>
+                        <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Please check your internet and try again</div>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
-              </div>
-            )}
-
+              ) : (
+                <div style={styles.emptyStateContainer}>
+                  <h2 style={styles.emptyTitle}>Create without limits.</h2>
+                  <p style={styles.emptyDesc}>
+                    Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
+                  </p>
+                  <div style={styles.tagRow}>
+                    <span style={styles.tag}>STL Format</span>
+                    <span style={styles.tag}>3D Print Ready</span>
+                    <span style={styles.tag}>AI Powered</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -405,64 +381,128 @@ const styles = {
       'radial-gradient(circle at 50% -10%, rgba(112,228,222,0.07), transparent 45%)'
   },
 
-  hero: { padding: '6rem 2rem', textAlign: 'center' },
-  monoTag: { fontFamily: 'monospace', fontSize: 10, letterSpacing: 6, color: '#70e4de', opacity: 0.7 },
-  title: { fontSize: 'clamp(2.4rem, 4vw, 3.6rem)', fontWeight: 300, margin: '1.6rem 0' },
-  subtitle: { fontSize: 16, color: '#777', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 },
+  hero: { padding: '8rem 2rem', textAlign: 'center' },
+  monoTag: { fontFamily: 'monospace', fontSize: 11, letterSpacing: 8, color: '#70e4de', opacity: 0.6, marginBottom: '2rem', display: 'block' },
+  title: { fontSize: 'clamp(2.8rem, 6vw, 4.4rem)', fontWeight: 200, margin: '1.5rem 0', lineHeight: 1.1, letterSpacing: '-1px' },
+  subtitle: { fontSize: 18, color: '#999', maxWidth: 600, margin: '0 auto', lineHeight: 1.8, fontWeight: 300 },
 
-  terminalWrap: { padding: '2rem', maxWidth: 1000, margin: '0 auto' },
-  terminal: { background: '#080808', borderRadius: 28, border: '1px solid #141414', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.5)' },
-  terminalTop: { padding: '1.25rem 2rem', display: 'flex', alignItems: 'center', borderBottom: '1px solid #141414', background: '#0a0a0a' },
-  dots: { display: 'flex', gap: 8 },
-  dot: { width: 8, height: 8, borderRadius: '50%', background: '#1a1a1a' },
-  terminalTitle: { marginLeft: 'auto', fontSize: 10, color: '#444', letterSpacing: 2, fontWeight: 700 },
-  terminalBody: { padding: '3rem', position: 'relative' },
+  studioWrap: { padding: '4rem 2rem', maxWidth: 1200, margin: '0 auto' },
+  studioContainer: {
+    background: 'rgba(15, 15, 18, 0.4)',
+    backdropFilter: 'blur(40px)',
+    borderRadius: 40,
+    border: '1px solid rgba(255,255,255,0.06)',
+    position: 'relative',
+    overflow: 'hidden',
+    boxShadow: '0 50px 100px -20px rgba(0,0,0,0.5)'
+  },
+  studioBlur: {
+    position: 'absolute',
+    top: '-20%',
+    right: '-10%',
+    width: '50%',
+    height: '60%',
+    background: 'radial-gradient(circle, rgba(112,228,222,0.08) 0%, transparent 70%)',
+    pointerEvents: 'none'
+  },
+  studioContent: { padding: '4rem', position: 'relative', zIndex: 1 },
 
-  terminalBtn: {
+  visualColumn: { display: 'flex', flexDirection: 'column', gap: '2rem' },
+  previewBox: {
+    background: 'rgba(0,0,0,0.2)',
+    borderRadius: 32,
+    border: '2px dashed rgba(255,255,255,0.05)',
+    height: 480,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    position: 'relative',
+    overflow: 'hidden',
+    transition: 'all 0.4s ease'
+  },
+  mainImage: { width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' },
+
+  uploadState: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
+  uploadIconCircle: {
+    width: 80, height: 80, borderRadius: '50%', background: 'rgba(112, 228, 222, 0.05)',
+    display: 'grid', placeItems: 'center', color: '#70e4de', marginBottom: '1.5rem',
+    border: '1px solid rgba(112, 228, 222, 0.2)'
+  },
+  uploadTitle: { fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem', color: '#fff' },
+  uploadSubt: { fontSize: '0.9rem', color: '#666' },
+
+  buttonRow: { display: 'flex', gap: '1rem' },
+  magicBtn: {
     flex: 1,
-    padding: '1rem',
-    background: 'rgba(255,255,255,0.02)',
-    border: '1px solid #222',
-    borderRadius: '12px',
-    color: '#fff',
-    fontSize: '0.8rem',
-    fontWeight: 800,
-    letterSpacing: '1px',
+    padding: '1.2rem',
+    background: 'linear-gradient(135deg, #70e4de 0%, #4facfe 100%)',
+    border: 'none',
+    borderRadius: 20,
+    color: '#000',
+    fontSize: '0.95rem',
+    fontWeight: 700,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.8rem',
     cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+    boxShadow: '0 15px 30px -5px rgba(112,228,222,0.3)',
+    transition: 'all 0.3s ease'
+  },
+  resetBtnIcon: {
+    width: 60, height: 60, borderRadius: 20, background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.05)', color: '#fff', cursor: 'pointer',
+    display: 'grid', placeItems: 'center', transition: 'all 0.3s ease'
   },
 
-  actionBtn: {
-    padding: '0.8rem 1.5rem',
-    background: '#70e4de',
-    color: '#000',
-    borderRadius: '10px',
-    fontWeight: 900,
-    fontSize: '0.7rem',
-    letterSpacing: '1px',
-    textDecoration: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.6rem'
+  infoColumn: { height: '100%' },
+  studioHeader: { display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '2.5rem' },
+  studioBadge: { fontSize: '0.75rem', fontWeight: 800, letterSpacing: '3px', color: '#70e4de', opacity: 0.8 },
+
+  stepList: { display: 'flex', flexDirection: 'column', gap: '1.8rem' },
+  stepItem: { display: 'flex', gap: '1.5rem', transition: 'all 0.5s ease' },
+  stepNumber: {
+    width: 32, height: 32, borderRadius: 10, display: 'grid', placeItems: 'center',
+    fontSize: '0.7rem', fontWeight: 900, transition: 'all 0.3s ease'
+  },
+  stepLabel: { fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.3rem', color: '#fff' },
+  stepDesc: { fontSize: '0.85rem', color: '#666', lineHeight: 1.5 },
+
+  progressSection: { marginTop: '2rem', padding: '1.5rem', background: 'rgba(112,228,222,0.03)', borderRadius: 20 },
+  progressText: { display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '1rem' },
+  progressBarBg: { height: 6, background: 'rgba(255,255,255,0.03)', borderRadius: 10, overflow: 'hidden' },
+  progressBarFill: { height: '100%', background: '#70e4de', boxShadow: '0 0 20px rgba(112,228,222,0.5)' },
+
+  successOverlay: {
+    position: 'absolute', inset: 0, background: 'rgba(5,5,10,0.8)', backdropFilter: 'blur(20px)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10
+  },
+  successIcon: { color: '#22c55e', marginBottom: '1.5rem' },
+  downloadBtn: {
+    padding: '1rem 2rem', background: '#fff', color: '#000', borderRadius: 16,
+    fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none', display: 'flex',
+    alignItems: 'center', gap: '0.8rem', transition: 'all 0.3s ease'
+  },
+  resetBtnSmall: {
+    width: 50, height: 50, borderRadius: 16, background: 'rgba(255,255,255,0.1)',
+    border: 'none', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center'
   },
 
-  lockOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'rgba(5,5,5,0.95)',
-    backdropFilter: 'blur(10px)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10
+  emptyStateContainer: { padding: '2rem 0' },
+  emptyTitle: { fontSize: '2.5rem', fontWeight: 100, marginBottom: '1.5rem', color: '#fff' },
+  emptyDesc: { fontSize: '1rem', color: '#777', lineHeight: 1.8, marginBottom: '2.5rem' },
+  tagRow: { display: 'flex', gap: '0.8rem' },
+  tag: {
+    padding: '0.6rem 1.2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
+    borderRadius: 100, fontSize: '0.75rem', fontWeight: 600, color: '#aaa'
   },
-  lockText: { fontSize: 11, letterSpacing: 2, fontWeight: 900, color: '#fff' },
+
+  errorCard: {
+    marginTop: '2rem', padding: '1.5rem', background: 'rgba(239,68,68,0.05)',
+    border: '1px solid rgba(239,68,68,0.1)', borderRadius: 20, color: '#ef4444',
+    display: 'flex', gap: '1rem', alignItems: 'center'
+  },
 
   gridSection: { padding: '8rem 2rem 12rem', maxWidth: 1400, margin: '0 auto' },
   grid: {
