@@ -27,20 +27,20 @@ import Footer from '../components/Footer';
 const FEATURES = [
   {
     icon: Sparkles,
-    title: 'AI_SYNTHESIS',
-    desc: 'Proprietary neural architectures engineered to transform 2D visual data into high-fidelity 3D geometry. Leveraging TripoSR benchmarks for instantaneous, precise generation.',
-    status: 'ACTIVE'
+    title: 'Instant 3D Creation',
+    desc: 'Upload any image and watch our AI turn it into a 3D model in seconds. ANE is designed to make 3D design as easy as taking a photo.',
+    status: 'READY'
   },
   {
     icon: Box,
-    title: 'ADDITIVE_READY',
-    desc: 'Every model is automatically optimized for additive manufacturing. Precision-scaled STL outputs ensuring 100% compatibility with industrial slicers and 3D printers.',
+    title: 'Built for 3D Printing',
+    desc: 'Every model is created as an STL file that you can download and print immediately. No extra software or experience required.',
     status: 'OPTIMIZED'
   },
   {
     icon: Shield,
-    title: 'MESH_INTEGRITY',
-    desc: 'Advanced post-processing protocols including Laplacian smoothing and island removal, guaranteeing watertight meshes and professional-grade surface finishes.',
+    title: 'Clean & Smooth Models',
+    desc: 'Our system automatically cleans your models by removing rough edges and floating artifacts, giving you a perfect result every time.',
     status: 'STABLE'
   }
 ];
