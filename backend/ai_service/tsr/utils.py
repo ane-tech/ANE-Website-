@@ -7,8 +7,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import imageio
 import numpy as np
 import PIL.Image
-# Force disable rembg because onnxruntime is incompatible with Python 3.14
-rembg = None
+try:
+    import rembg
+except ImportError:
+    rembg = None
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

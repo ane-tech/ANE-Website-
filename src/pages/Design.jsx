@@ -26,22 +26,22 @@ import Footer from '../components/Footer';
 
 const FEATURES = [
   {
-    icon: Command,
-    title: 'SYSTEMS',
-    desc: 'Atomic design frameworks engineered for high-scale, mission-critical environments. Built with modularity, long-term maintainability, and enterprise-grade reliability at the core.',
-    status: 'STABLE'
+    icon: Sparkles,
+    title: 'AI_SYNTHESIS',
+    desc: 'Proprietary neural architectures engineered to transform 2D visual data into high-fidelity 3D geometry. Leveraging TripoSR benchmarks for instantaneous, precise generation.',
+    status: 'ACTIVE'
   },
   {
-    icon: Zap,
-    title: 'PERFORMANCE',
-    desc: 'Optimized rendering pipelines delivering consistent 60fps interactions, intelligent resource management, and zero cumulative layout shift across devices.',
+    icon: Box,
+    title: 'ADDITIVE_READY',
+    desc: 'Every model is automatically optimized for additive manufacturing. Precision-scaled STL outputs ensuring 100% compatibility with industrial slicers and 3D printers.',
     status: 'OPTIMIZED'
   },
   {
-    icon: Globe,
-    title: 'ACCESSIBILITY',
-    desc: 'Inclusive by design. Fully compliant with WCAG standards, ensuring usability, clarity, and accessibility for every user worldwide.',
-    status: 'COMPLIANT'
+    icon: Shield,
+    title: 'MESH_INTEGRITY',
+    desc: 'Advanced post-processing protocols including Laplacian smoothing and island removal, guaranteeing watertight meshes and professional-grade surface finishes.',
+    status: 'STABLE'
   }
 ];
 
@@ -74,14 +74,14 @@ const Hero = memo(() => (
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     >
-      <span style={styles.monoTag}>[ DESIGN INTELLIGENCE ]</span>
+      <span style={styles.monoTag}>[ ANE_GEN_01 ]</span>
 
       <h1 style={styles.title}>
-        The architecture of <br /> next-gen interfaces.
+        Intelligence in Every <br /> Three Dimensions.
       </h1>
 
       <p style={styles.subtitle}>
-        Engineering precision into every pixel. Designing systems that scale with ambition.
+        The next evolution of digital asset creation. Transform flat inspiration into print-ready reality with our neural processing engine.
       </p>
     </motion.div>
   </section>
@@ -283,9 +283,9 @@ const Terminal = () => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   {[
-                    { id: 'uploading', label: 'DEPTH_MAP_ANALYSIS', desc: 'Analyzing geometric nodes' },
-                    { id: 'generating', label: 'NEURAL_MESH_EXTRACTION', desc: 'TripoSR engine pulse' },
-                    { id: 'finalizing', label: 'OBJ_EXPORT_FINAL', desc: 'Packing vertex data' }
+                    { id: 'uploading', label: 'NEURAL_INPUT_SCAN', desc: 'Isolating object boundaries' },
+                    { id: 'generating', label: 'GEOMETRIC_SYNTHESIS', desc: 'Executing TripoSR-AI Engine' },
+                    { id: 'finalizing', label: 'STL_GEOMETRY_FINAL', desc: 'Compiling additive-ready mesh' }
                   ].map((step, idx) => {
                     const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
                     const isDone = status === 'success' || (status === 'generating' && idx === 0);

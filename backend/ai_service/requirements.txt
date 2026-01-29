@@ -15,3 +15,6 @@ huggingface_hub
 jaxtyping
 diffusers
 accelerate
+onnxruntime
+scipy
+onnx
