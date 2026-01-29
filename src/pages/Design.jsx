@@ -305,17 +305,16 @@ const Terminal = () => {
                 </div>
               ) : (
                 <div style={styles.emptyStateContainer}>
-                  <h2 style={styles.emptyTitle}>Create without limits.</h2>
-                  <p style={styles.emptyDesc}>
-                    Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
-                  </p>
-
                   <button
                     onClick={() => fileInputRef.current.click()}
                     style={styles.selectImageBtn}
                   >
                     <ImageIcon size={18} /> Choose Project Image
                   </button>
+
+                  <p style={styles.emptyDesc}>
+                    Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
+                  </p>
 
                   <div style={styles.tagRow}>
                     <span style={styles.tag}>STL Format</span>
