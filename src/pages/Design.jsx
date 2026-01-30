@@ -20,7 +20,7 @@ import {
   Eye
 } from 'lucide-react';
 import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Stage, Center, Grid } from '@react-three/drei';
+import { OrbitControls, Stage, Center, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import * as THREE from 'three';
 
@@ -103,7 +103,7 @@ const ModelViewer = ({ url }) => {
 
       <Stage adjustCamera={false} intensity={0.6} environment="city" preset="rembrandt" shadows={false}>
         <Center top>
-          <mesh geometry={geom} castShadow receiveShadow>
+          <mesh geometry={geom} castShadow receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
             <meshStandardMaterial
               color="#fcfcfc"
               metalness={0.1}
@@ -120,12 +120,16 @@ const ModelViewer = ({ url }) => {
         cellThickness={1}
         sectionSize={5}
         sectionThickness={1.5}
-        sectionColor="#333"
+        sectionColor="#444"
         cellColor="#222"
-        fadeDistance={30}
+        fadeDistance={40}
       />
 
-      <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 2.1} />
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport axisColors={['#ff3e3e', '#3fff3e', '#3e3eff']} labelColor="white" />
+      </GizmoHelper>
+
+      <OrbitControls makeDefault />
     </Canvas>
   );
 };
