@@ -50,10 +50,11 @@ try:
             alpha = np.array(image_no_bg.split()[3])
             import scipy.ndimage as ndimage
             
-            # 2. AGGRESSIVE MASK SHRINK (6 pixels to kill all neural glow)
-            # This "eats" the light-halo/glow that causes the 'wall' effect at the back
+            # 2. LOGO-SAFE MASK SHRINK (2 pixels)
+            # 6 was too aggressive and caused parts to split. 
+            # 2 keeps the fine details like stems while removing basic halo.
             mask = alpha > 127
-            eroded_mask = ndimage.binary_erosion(mask, iterations=6)
+            eroded_mask = ndimage.binary_erosion(mask, iterations=2)
             alpha = (eroded_mask.astype(np.uint8) * 255)
             
             # 3. MASK BLUR (Removes jagged edges from erosion)
@@ -85,46 +86,43 @@ try:
     # ADVANCED POST-PROCESSING FOR PRECISION
     print("Post-processing for ultra-smooth precision...")
     try:
-        # 1. KEEP ALL SIGNIFICANT COMPONENTS (Fixes the Apple leaf issue)
+        # 1. KEEP ALL SIGNIFICANT COMPONENTS
         print(">>> Identifying and preserving object components...")
         import trimesh
+        # Ensure the mesh is watertight and has no internal artifacts
+        mesh.fill_holes()
+        
         components = mesh.split(only_watertight=False)
         if len(components) > 1:
-            # Keep parts that are at least 3% of the largest part's volume/area
             max_area = max(c.area for c in components)
-            significant_parts = [c for c in components if c.area > (max_area * 0.03)]
+            significant_parts = [c for c in components if c.area > (max_area * 0.02)] # Lowered threshold to 2%
             mesh = trimesh.util.concatenate(significant_parts)
-            print(f">>> Preserved {len(significant_parts)} major components (Cleaned {len(components) - len(significant_parts)} fragments).")
+            print(f">>> Preserved {len(significant_parts)} major components.")
 
-        # 2. Laplacian Smoothing (Neural noise reduction - increased for logos)
+        # 2. Laplacian Smoothing (Neural noise reduction)
         import trimesh.smoothing
-        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=25)
+        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=20)
         
         # 3. FIX ORIENTATION
         import numpy as np
         mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2, [1, 0, 0]))
 
-        # 4. LOGO DEPTH NORMALIZATION (Prevents the "Bulging Back" effect)
-        # We find the dimensions and ensure the depth (Z) isn't unnaturally thick
+        # 4. LOGO DEPTH NORMALIZATION (Strict Logo Profile)
         print(">>> Normalizing model depth for sleek profile...")
-        bounds = mesh.bounds
+        mesh.apply_translation(-mesh.centroid)
         extents = mesh.extents
-        # If the object is much deeper than a standard logo (e.g., depth > 30% of width)
-        # we "squash" the Z-axis to make it a perfect printed asset.
-        depth_limit = max(extents[0], extents[1]) * 0.25
-        if extents[2] > depth_limit:
-            scale_z = depth_limit / extents[2]
-            # Center the mesh first
-            mesh.apply_translation(-mesh.centroid)
-            # Squash the depth axis
+        
+        # Logos should be relatively flat (Depth ≈ 15% of max dimension)
+        target_depth = max(extents[0], extents[1]) * 0.15 
+        if extents[2] > target_depth:
+            scale_z = target_depth / extents[2]
             matrix = np.eye(4)
             matrix[2, 2] = scale_z
             mesh.apply_transform(matrix)
-            print(f">>> Depth normalized by {scale_z:.2f}x to prevent neural bulging.")
+            print(f">>> Profile flattened by {scale_z:.2f}x for a professional finish.")
 
-        # 5. FINAL RE-CENTERING
+        # 5. FINAL RE-CENTERING & FLOORING
         mesh.apply_translation(-mesh.centroid)
-        # Move to sit on the floor (Z=0)
         mesh.apply_translation([0, 0, -mesh.bounds[0][2]])
 
         # 4. Smart Simplification (60k faces instead of 80k for better browser viewing)
