@@ -20,7 +20,7 @@ import {
   Eye
 } from 'lucide-react';
 import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Stage, Center } from '@react-three/drei';
+import { OrbitControls, Stage, Center, Grid } from '@react-three/drei';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
 import * as THREE from 'three';
 
@@ -97,22 +97,35 @@ const Hero = memo(() => (
 const ModelViewer = ({ url }) => {
   const geom = useLoader(STLLoader, url);
   return (
-    <Canvas shadows camera={{ position: [0, 0, 10], fov: 35 }}>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1} />
-      <Stage adjustCamera intensity={0.5} environment="city" shadows={false}>
-        <Center>
-          <mesh geometry={geom}>
+    <Canvas shadows camera={{ position: [5, 5, 5], fov: 40 }}>
+      <ambientLight intensity={0.7} />
+      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
+
+      <Stage adjustCamera={false} intensity={0.6} environment="city" preset="rembrandt" shadows={false}>
+        <Center top>
+          <mesh geometry={geom} castShadow receiveShadow>
             <meshStandardMaterial
-              color="#70e4de"
-              metalness={0.7}
-              roughness={0.3}
+              color="#fcfcfc"
+              metalness={0.1}
+              roughness={0.5}
               side={THREE.DoubleSide}
             />
           </mesh>
         </Center>
       </Stage>
-      <OrbitControls makeDefault />
+
+      <Grid
+        infiniteGrid
+        cellSize={1}
+        cellThickness={1}
+        sectionSize={5}
+        sectionThickness={1.5}
+        sectionColor="#333"
+        cellColor="#222"
+        fadeDistance={30}
+      />
+
+      <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 2.1} />
     </Canvas>
   );
 };
