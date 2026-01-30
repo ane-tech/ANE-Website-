@@ -122,6 +122,21 @@ const ModelViewer = ({ url }) => {
         </Center>
       </Stage>
 
+      <Grid
+        infiniteGrid
+        cellSize={1}
+        cellThickness={1}
+        sectionSize={5}
+        sectionThickness={1.5}
+        sectionColor="#444"
+        cellColor="#222"
+        fadeDistance={40}
+      />
+
+      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
+        <GizmoViewport axisColors={['#ff3e3e', '#3fff3e', '#3e3eff']} labelColor="white" />
+      </GizmoHelper>
+
       <OrbitControls makeDefault enableDamping dampingFactor={0.05} />
     </Canvas>
   );
