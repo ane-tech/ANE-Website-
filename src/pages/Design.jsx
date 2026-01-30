@@ -144,6 +144,7 @@ const Terminal = () => {
   const [result, setResult] = useState(null);
   const fileInputRef = useRef(null);
   const stlInputRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   const primaryTeal = '#70e4de';
 
@@ -175,7 +176,11 @@ const Terminal = () => {
     if (!file) return;
 
     setStatus('uploading');
-    setProgress(10);
+    setProgress(5);
+
+    // Setup cancellation
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
       const formData = new FormData();
@@ -183,20 +188,20 @@ const Terminal = () => {
 
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev < 95) return prev + Math.random() * 2;
+          if (prev < 98) return prev + Math.random() * 1.5;
           return prev;
         });
-      }, 1500);
+      }, 1000);
 
       const AI_URL = "https://ane-web-ane-ai-service.hf.space/generate-3d";
 
       const response = await fetch(AI_URL, {
         method: 'POST',
         body: formData,
+        signal: controller.signal
       });
 
       clearInterval(progressInterval);
-      setProgress(100);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -205,13 +210,25 @@ const Terminal = () => {
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
+      setProgress(100);
       setResult(url);
       setStlUrl(url);
       setStatus('success');
     } catch (err) {
-      console.error(err);
-      setStatus('error');
+      if (err.name === 'AbortError') {
+        console.log('Generation cancelled by user');
+      } else {
+        console.error(err);
+        setStatus('error');
+      }
     }
+  };
+
+  const cancelGenerate = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    reset();
   };
 
   const reset = () => {
@@ -362,12 +379,17 @@ const Terminal = () => {
 
                       <div style={styles.stepGrid}>
                         {[
-                          { id: 'uploading', label: '1. Analyzing Image', desc: 'Detecting your object\'s shape' },
-                          { id: 'generating', label: '2. Building 3D Model', desc: 'Creating the digital structure' },
-                          { id: 'finalizing', label: '3. Final Smoothing', desc: 'Polishing your model for printing' }
+                          { label: '1. Analyzing Image', desc: 'Detecting your object\'s shape', threshold: 0 },
+                          { label: '2. Building 3D Model', desc: 'Creating the digital structure', threshold: 65 },
+                          { label: '3. Final Smoothing', desc: 'Polishing your model for printing', threshold: 90 }
                         ].map((step, idx) => {
-                          const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
-                          const isDone = (status === 'success') || (status === 'generating' && idx === 0);
+                          const isWorking = status === 'uploading' || status === 'generating';
+                          const isDone = status === 'success' || (idx === 0 && progress > 65) || (idx === 1 && progress > 90);
+                          const isActive = isWorking && !isDone && (
+                            (idx === 0 && progress <= 65) ||
+                            (idx === 1 && progress > 65 && progress <= 90) ||
+                            (idx === 2 && progress > 90)
+                          );
 
                           return (
                             <div key={idx} style={{
@@ -389,15 +411,23 @@ const Terminal = () => {
                       {(status === 'uploading' || status === 'generating') && (
                         <div style={styles.progressSection}>
                           <div style={styles.progressText}>
-                            <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
-                            <span>{Math.round(progress)}%</span>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                              <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>This may take up to 2 minutes</span>
+                            </div>
+                            <span style={{ fontSize: '1.2rem', fontWeight: 200 }}>{Math.round(progress)}%</span>
                           </div>
+
                           <div style={styles.progressBarBg}>
                             <motion.div
                               animate={{ width: `${progress}%` }}
                               style={styles.progressBarFill}
                             />
                           </div>
+
+                          <button onClick={cancelGenerate} style={styles.cancelGenBtn}>
+                            <CloseIcon size={14} /> Cancel Generation
+                          </button>
                         </div>
                       )}
 
@@ -726,5 +756,13 @@ const styles = {
   reloadThinBtn: {
     background: 'transparent', border: 'none', color: '#666', fontSize: '0.8rem',
     display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', cursor: 'pointer', marginTop: '0.5rem'
+  },
+
+  cancelGenBtn: {
+    marginTop: '1.5rem', width: '100%', padding: '0.8rem', borderRadius: 12,
+    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+    color: '#999', fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.6rem',
+    transition: 'all 0.3s ease'
   }
 };
