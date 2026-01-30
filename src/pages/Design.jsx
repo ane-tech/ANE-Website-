@@ -101,7 +101,7 @@ const ModelViewer = ({ url }) => {
       <ambientLight intensity={0.7} />
       <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
 
-      <Stage adjustCamera={false} intensity={0.6} environment="city" preset="rembrandt" shadows={false}>
+      <Stage adjustCamera intensity={0.6} environment="city" preset="rembrandt" shadows={false}>
         <Center top>
           <mesh geometry={geom} castShadow receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
             <meshStandardMaterial
