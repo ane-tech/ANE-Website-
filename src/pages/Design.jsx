@@ -27,6 +27,7 @@ import * as THREE from 'three';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ModelList from '../components/ModelList';
 
 /* ================= DATA ================= */
 
@@ -62,6 +63,7 @@ function DesignPage() {
         <Hero />
         <Terminal />
         <FeatureGrid />
+        <ModelList />
       </main>
 
       <Footer />
