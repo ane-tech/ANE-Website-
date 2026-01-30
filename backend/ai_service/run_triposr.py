@@ -50,10 +50,10 @@ try:
             alpha = np.array(image_no_bg.split()[3])
             import scipy.ndimage as ndimage
             
-            # 2. AGGRESSIVE MASK SHRINK (4 pixels is safer than 6)
-            # This "eats" the light-halo/glow that causes the 'wall' effect
+            # 2. AGGRESSIVE MASK SHRINK (6 pixels to kill all neural glow)
+            # This "eats" the light-halo/glow that causes the 'wall' effect at the back
             mask = alpha > 127
-            eroded_mask = ndimage.binary_erosion(mask, iterations=4)
+            eroded_mask = ndimage.binary_erosion(mask, iterations=6)
             alpha = (eroded_mask.astype(np.uint8) * 255)
             
             # 3. MASK BLUR (Removes jagged edges from erosion)
@@ -96,13 +96,36 @@ try:
             mesh = trimesh.util.concatenate(significant_parts)
             print(f">>> Preserved {len(significant_parts)} major components (Cleaned {len(components) - len(significant_parts)} fragments).")
 
-        # 2. Laplacian Smoothing (Neural noise reduction)
+        # 2. Laplacian Smoothing (Neural noise reduction - increased for logos)
         import trimesh.smoothing
-        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=15)
+        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=25)
         
         # 3. FIX ORIENTATION
         import numpy as np
         mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2, [1, 0, 0]))
+
+        # 4. LOGO DEPTH NORMALIZATION (Prevents the "Bulging Back" effect)
+        # We find the dimensions and ensure the depth (Z) isn't unnaturally thick
+        print(">>> Normalizing model depth for sleek profile...")
+        bounds = mesh.bounds
+        extents = mesh.extents
+        # If the object is much deeper than a standard logo (e.g., depth > 30% of width)
+        # we "squash" the Z-axis to make it a perfect printed asset.
+        depth_limit = max(extents[0], extents[1]) * 0.25
+        if extents[2] > depth_limit:
+            scale_z = depth_limit / extents[2]
+            # Center the mesh first
+            mesh.apply_translation(-mesh.centroid)
+            # Squash the depth axis
+            matrix = np.eye(4)
+            matrix[2, 2] = scale_z
+            mesh.apply_transform(matrix)
+            print(f">>> Depth normalized by {scale_z:.2f}x to prevent neural bulging.")
+
+        # 5. FINAL RE-CENTERING
+        mesh.apply_translation(-mesh.centroid)
+        # Move to sit on the floor (Z=0)
+        mesh.apply_translation([0, 0, -mesh.bounds[0][2]])
 
         # 4. Smart Simplification (60k faces instead of 80k for better browser viewing)
         if len(mesh.faces) > 60000:
