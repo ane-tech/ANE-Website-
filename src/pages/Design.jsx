@@ -161,17 +161,6 @@ const Terminal = () => {
     }
   };
 
-  const handleUnifiedUpload = (e) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    if (selectedFile.name.toLowerCase().endsWith('.stl')) {
-      handleStlUpload(e);
-    } else {
-      handleImageUpload(e);
-    }
-  };
-
   const handleStlUpload = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -181,6 +170,27 @@ const Terminal = () => {
       setFile(null);
       setResult(url);
       setStatus('viewing_full');
+    }
+  };
+
+  const handleUnifiedUpload = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    if (selectedFile.name.toLowerCase().endsWith('.stl')) {
+      const url = URL.createObjectURL(selectedFile);
+      setStlUrl(url);
+      setPreview(null);
+      setFile(null);
+      setResult(url);
+      setStatus('viewing_full');
+    } else {
+      setFile(selectedFile);
+      setStlUrl(null);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result);
+      reader.readAsDataURL(selectedFile);
+      setStatus('idle');
     }
   };
 
@@ -266,6 +276,11 @@ const Terminal = () => {
         <div style={styles.studioBlur} />
 
         <div style={styles.studioContent}>
+          {/* Isolated Inputs to prevent double triggering */}
+          <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
+          <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
+          <input type="file" ref={unifiedInputRef} hidden accept="image/*,.stl" onChange={handleUnifiedUpload} />
+
           <AnimatePresence mode="wait">
             {isFullView ? (
               <motion.div
@@ -281,7 +296,7 @@ const Terminal = () => {
                     <Box size={20} color={primaryTeal} />
                     <span style={styles.studioBadge}>{file ? 'GENERATED MESH' : '3D PREVIEWER'}</span>
                   </div>
-                  <button onClick={() => setStatus(file ? 'success' : 'idle')} style={styles.cancelBtn}>
+                  <button onClick={(e) => { e.stopPropagation(); setStatus(file ? 'success' : 'idle'); }} style={styles.cancelBtn}>
                     <CloseIcon size={24} />
                   </button>
                 </div>
@@ -311,12 +326,13 @@ const Terminal = () => {
                 <div style={styles.visualColumn}>
                   <div
                     style={styles.previewBox}
-                    onClick={() => status === 'idle' && unifiedInputRef.current.click()}
+                    onClick={(e) => {
+                      if (status === 'idle') {
+                        e.stopPropagation();
+                        unifiedInputRef.current.click();
+                      }
+                    }}
                   >
-                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
-                    <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
-                    <input type="file" ref={unifiedInputRef} hidden accept="image/*,.stl" onChange={handleUnifiedUpload} />
-
                     <AnimatePresence mode="wait">
                       {status === 'idle' && !preview ? (
                         <motion.div
@@ -458,14 +474,14 @@ const Terminal = () => {
                     <div style={styles.emptyStateContainer}>
                       <div style={styles.emptyButtonRow}>
                         <button
-                          onClick={() => fileInputRef.current.click()}
+                          onClick={(e) => { e.stopPropagation(); fileInputRef.current.click(); }}
                           style={styles.selectImageBtn}
                         >
                           <ImageIcon size={18} /> Choose Project Image
                         </button>
 
                         <button
-                          onClick={() => stlInputRef.current.click()}
+                          onClick={(e) => { e.stopPropagation(); stlInputRef.current.click(); }}
                           style={{ ...styles.selectImageBtn, background: primaryTeal, color: '#000', border: 'none' }}
                         >
                           <Box size={18} /> View Existing STL
