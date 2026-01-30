@@ -521,33 +521,56 @@ const FeatureGrid = memo(() => (
           key={title}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -12 }}
+          whileHover={{
+            y: -20,
+            borderColor: '#70e4de80',
+            boxShadow: '0 30px 60px -20px rgba(112, 228, 222, 0.2)'
+          }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           viewport={{ once: true }}
           style={styles.card}
         >
           {/* background grid */}
-          <div style={styles.scanGrid} />
+          <motion.div
+            style={styles.scanGrid}
+            whileHover={{ opacity: 0.5, scale: 1.1 }}
+          />
 
           {/* top */}
           <div style={styles.cardTop}>
-            <div style={styles.iconWrap}>
+            <motion.div
+              style={styles.iconWrap}
+              whileHover={{ scale: 1.1, rotate: 5 }}
+            >
               <Icon size={22} />
-            </div>
-            <ArrowUpRight size={18} style={{ opacity: 0.25 }} />
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.2, color: '#70e4de' }}
+              style={{ cursor: 'pointer', display: 'flex' }}
+            >
+              <ArrowUpRight size={18} style={{ opacity: 0.5 }} />
+            </motion.div>
           </div>
 
           {/* middle */}
           <div style={styles.cardMiddle}>
-            <h3 style={styles.cardTitle}>{title}</h3>
+            <motion.h3
+              style={styles.cardTitle}
+              whileHover={{ color: '#70e4de' }}
+            >
+              {title}
+            </motion.h3>
             <p style={styles.cardText}>{desc}</p>
           </div>
 
           {/* bottom */}
-          <div style={styles.cardBottom}>
+          <motion.div
+            style={styles.cardBottom}
+            whileHover={{ scale: 1.05, opacity: 1 }}
+          >
             <Activity size={14} />
             <span>{status}</span>
-          </div>
+          </motion.div>
         </motion.article>
       ))}
     </div>
@@ -729,7 +752,10 @@ const styles = {
     border: '1px solid rgba(255,255,255,0.06)',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    transition: 'border-color 0.4s ease, box-shadow 0.4s ease',
+    overflow: 'hidden',
+    cursor: 'default'
   },
 
   scanGrid: {
@@ -754,7 +780,7 @@ const styles = {
   },
 
   cardMiddle: { marginTop: '3rem' },
-  cardTitle: { fontSize: '0.85rem', letterSpacing: 2, marginBottom: '1.5rem' },
+  cardTitle: { fontSize: '0.85rem', letterSpacing: 2, marginBottom: '1.5rem', transition: 'color 0.3s ease' },
   cardText: { fontSize: '1rem', color: '#8a8a8a', lineHeight: 1.8 },
 
   cardBottom: {
@@ -764,7 +790,8 @@ const styles = {
     fontSize: '0.75rem',
     letterSpacing: '1.5px',
     color: '#70e4de',
-    opacity: 0.75
+    opacity: 0.75,
+    transition: 'all 0.3s ease'
   },
 
   viewerHint: {
