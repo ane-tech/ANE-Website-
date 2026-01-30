@@ -148,9 +148,18 @@ const Terminal = () => {
 
   const primaryTeal = '#70e4de';
 
-  const handleFileChange = (e) => {
+  const handleUnifiedUpload = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
+    if (!selectedFile) return;
+
+    if (selectedFile.name.toLowerCase().endsWith('.stl')) {
+      const url = URL.createObjectURL(selectedFile);
+      setStlUrl(url);
+      setPreview(null);
+      setFile(null);
+      setResult(url);
+      setStatus('viewing_full');
+    } else {
       setFile(selectedFile);
       setStlUrl(null);
       const reader = new FileReader();
@@ -166,7 +175,7 @@ const Terminal = () => {
       const url = URL.createObjectURL(selectedFile);
       setStlUrl(url);
       setPreview(null);
-      setFile(null); // Clear image file if viewing existing STL
+      setFile(null);
       setResult(url);
       setStatus('viewing_full');
     }
@@ -301,7 +310,7 @@ const Terminal = () => {
                     style={styles.previewBox}
                     onClick={() => status === 'idle' && fileInputRef.current.click()}
                   >
-                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
+                    <input type="file" ref={fileInputRef} hidden accept="image/*,.stl" onChange={handleUnifiedUpload} />
                     <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
 
                     <AnimatePresence mode="wait">
@@ -316,8 +325,8 @@ const Terminal = () => {
                           <div style={styles.uploadIconCircle}>
                             <Upload size={32} />
                           </div>
-                          <h3 style={styles.uploadTitle}>Choose an image</h3>
-                          <p style={styles.uploadSubt}>Drag & drop or click to browse</p>
+                          <h3 style={styles.uploadTitle}>Choose an Asset</h3>
+                          <p style={styles.uploadSubt}>Select an Image or STL file to begin</p>
                         </motion.div>
                       ) : (
                         <motion.div
@@ -443,19 +452,21 @@ const Terminal = () => {
                     </div>
                   ) : (
                     <div style={styles.emptyStateContainer}>
-                      <button
-                        onClick={() => fileInputRef.current.click()}
-                        style={styles.selectImageBtn}
-                      >
-                        <ImageIcon size={18} /> Choose Project Image
-                      </button>
+                      <div style={styles.emptyButtonRow}>
+                        <button
+                          onClick={() => fileInputRef.current.click()}
+                          style={styles.selectImageBtn}
+                        >
+                          <ImageIcon size={18} /> Choose Project Image
+                        </button>
 
-                      <button
-                        onClick={() => stlInputRef.current.click()}
-                        style={{ ...styles.selectImageBtn, background: 'transparent', marginTop: '-1.5rem' }}
-                      >
-                        <Box size={18} /> View Existing STL
-                      </button>
+                        <button
+                          onClick={() => stlInputRef.current.click()}
+                          style={{ ...styles.selectImageBtn, background: primaryTeal, color: '#000', border: 'none' }}
+                        >
+                          <Box size={18} /> View Existing STL
+                        </button>
+                      </div>
 
                       <p style={styles.emptyDesc}>
                         Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
@@ -757,6 +768,8 @@ const styles = {
     background: 'transparent', border: 'none', color: '#666', fontSize: '0.8rem',
     display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', cursor: 'pointer', marginTop: '0.5rem'
   },
+
+  emptyButtonRow: { display: 'flex', gap: '1.5rem', marginBottom: '2.5rem', flexWrap: 'wrap', justifyContent: 'center' },
 
   cancelGenBtn: {
     marginTop: '1.5rem', width: '100%', padding: '0.8rem', borderRadius: 12,
