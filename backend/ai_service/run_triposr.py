@@ -78,9 +78,9 @@ try:
     with torch.no_grad():
         scene = model([image], device=device)
 
-    print("Extracting mesh (Resolution 256)...")
-    # 256 is optimal for balanced speed and quality on CPU
-    mesh = model.extract_mesh(scene, True, resolution=256)[0]
+    print("Extracting mesh at ULTRA resolution (320)...")
+    # 320 is the peak for high-precision CPU generation
+    mesh = model.extract_mesh(scene, True, resolution=320)[0]
     
     # ADVANCED POST-PROCESSING FOR PRECISION
     print("Post-processing for ultra-smooth precision...")

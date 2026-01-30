@@ -212,17 +212,23 @@ const Terminal = () => {
 
       const progressInterval = setInterval(() => {
         setProgress(prev => {
-          if (prev < 98) return prev + Math.random() * 1.5;
+          // Smart decelerating progress:
+          // Fast at first (0-70), slow in the middle (70-90), 
+          // and extremely slow at the end (90-99.5) to keep it alive
+          if (prev < 70) return prev + Math.random() * 2;
+          if (prev < 90) return prev + Math.random() * 0.5;
+          if (prev < 99.5) return prev + 0.01; // Constant tiny movement to show "Keep-Alive"
           return prev;
         });
-      }, 1000);
+      }, 800);
 
       const AI_URL = "https://ane-web-ane-ai-service.hf.space/generate-3d";
 
       const response = await fetch(AI_URL, {
         method: 'POST',
         body: formData,
-        signal: controller.signal
+        signal: controller.signal,
+        keepalive: true // Browser hint to keep connection stable
       });
 
       clearInterval(progressInterval);
