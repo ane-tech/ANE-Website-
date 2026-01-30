@@ -107,19 +107,22 @@ try:
         import numpy as np
         mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2, [1, 0, 0]))
 
-        # 4. LOGO DEPTH NORMALIZATION (Strict Logo Profile)
-        print(">>> Normalizing model depth for sleek profile...")
+        # 4. ADAPTIVE DEPTH CONTROL (Preserves roundness for characters)
+        print(">>> Optimizing 3D volume profile...")
         mesh.apply_translation(-mesh.centroid)
         extents = mesh.extents
         
-        # Logos should be relatively flat (Depth ≈ 15% of max dimension)
-        target_depth = max(extents[0], extents[1]) * 0.15 
-        if extents[2] > target_depth:
-            scale_z = target_depth / extents[2]
+        # We only cap depth if it's EXTREMELY hallucinated (Depth > Width)
+        # This keeps characters like Doraemon rounded while stopping logos from having "tails"
+        max_dim = max(extents[0], extents[1])
+        if extents[2] > max_dim * 0.8:
+            scale_z = (max_dim * 0.8) / extents[2]
             matrix = np.eye(4)
             matrix[2, 2] = scale_z
             mesh.apply_transform(matrix)
-            print(f">>> Profile flattened by {scale_z:.2f}x for a professional finish.")
+            print(f">>> Corrected extreme depth hallway by {scale_z:.2f}x.")
+        else:
+            print(">>> Natural volume preserved for character depth.")
 
         # 5. FINAL RE-CENTERING & FLOORING
         mesh.apply_translation(-mesh.centroid)
