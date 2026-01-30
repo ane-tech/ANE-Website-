@@ -144,28 +144,31 @@ const Terminal = () => {
   const [result, setResult] = useState(null);
   const fileInputRef = useRef(null);
   const stlInputRef = useRef(null);
+  const unifiedInputRef = useRef(null);
   const abortControllerRef = useRef(null);
 
   const primaryTeal = '#70e4de';
 
-  const handleUnifiedUpload = (e) => {
+  const handleImageUpload = (e) => {
     const selectedFile = e.target.files[0];
-    if (!selectedFile) return;
-
-    if (selectedFile.name.toLowerCase().endsWith('.stl')) {
-      const url = URL.createObjectURL(selectedFile);
-      setStlUrl(url);
-      setPreview(null);
-      setFile(null);
-      setResult(url);
-      setStatus('viewing_full');
-    } else {
+    if (selectedFile) {
       setFile(selectedFile);
       setStlUrl(null);
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(selectedFile);
       setStatus('idle');
+    }
+  };
+
+  const handleUnifiedUpload = (e) => {
+    const selectedFile = e.target.files[0];
+    if (!selectedFile) return;
+
+    if (selectedFile.name.toLowerCase().endsWith('.stl')) {
+      handleStlUpload(e);
+    } else {
+      handleImageUpload(e);
     }
   };
 
@@ -308,10 +311,11 @@ const Terminal = () => {
                 <div style={styles.visualColumn}>
                   <div
                     style={styles.previewBox}
-                    onClick={() => status === 'idle' && fileInputRef.current.click()}
+                    onClick={() => status === 'idle' && unifiedInputRef.current.click()}
                   >
-                    <input type="file" ref={fileInputRef} hidden accept="image/*,.stl" onChange={handleUnifiedUpload} />
+                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleImageUpload} />
                     <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
+                    <input type="file" ref={unifiedInputRef} hidden accept="image/*,.stl" onChange={handleUnifiedUpload} />
 
                     <AnimatePresence mode="wait">
                       {status === 'idle' && !preview ? (
