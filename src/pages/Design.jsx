@@ -16,8 +16,13 @@ import {
   Image as ImageIcon,
   Box,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from 'lucide-react';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls, Stage, Center } from '@react-three/drei';
+import { STLLoader } from 'three/examples/jsm/loaders/STLLoader';
+import * as THREE from 'three';
 
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -89,13 +94,38 @@ const Hero = memo(() => (
 
 /* ================= TERMINAL (GENERATOR) ================= */
 
+const ModelViewer = ({ url }) => {
+  const geom = useLoader(STLLoader, url);
+  return (
+    <Canvas shadows camera={{ position: [0, 0, 10], fov: 35 }}>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1} />
+      <Stage adjustCamera intensity={0.5} environment="city" shadows={false}>
+        <Center>
+          <mesh geometry={geom}>
+            <meshStandardMaterial
+              color="#70e4de"
+              metalness={0.7}
+              roughness={0.3}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        </Center>
+      </Stage>
+      <OrbitControls makeDefault />
+    </Canvas>
+  );
+};
+
 const Terminal = () => {
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [status, setStatus] = useState('idle'); // idle, uploading, generating, success, error
+  const [preview, setPreview] = useState(null); // For image preview
+  const [stlUrl, setStlUrl] = useState(null); // For 3D model
+  const [status, setStatus] = useState('idle'); // idle, uploading, generating, success, error, viewing
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
   const fileInputRef = useRef(null);
+  const stlInputRef = useRef(null);
 
   const primaryTeal = '#70e4de';
 
@@ -103,10 +133,22 @@ const Terminal = () => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
+      setStlUrl(null);
       const reader = new FileReader();
       reader.onloadend = () => setPreview(reader.result);
       reader.readAsDataURL(selectedFile);
       setStatus('idle');
+    }
+  };
+
+  const handleStlUpload = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setStlUrl(url);
+      setPreview(null);
+      setResult(url);
+      setStatus('viewing');
     }
   };
 
@@ -145,6 +187,7 @@ const Terminal = () => {
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       setResult(url);
+      setStlUrl(url);
       setStatus('success');
     } catch (err) {
       console.error(err);
@@ -155,6 +198,7 @@ const Terminal = () => {
   const reset = () => {
     setFile(null);
     setPreview(null);
+    setStlUrl(null);
     setStatus('idle');
     setProgress(0);
     setResult(null);
@@ -173,18 +217,19 @@ const Terminal = () => {
 
         {/* Main Content Area */}
         <div style={styles.studioContent}>
-          <div style={{ display: 'grid', gridTemplateColumns: preview ? '1fr 1.1fr' : '1fr', gap: '4rem', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: preview || stlUrl ? '1fr 1.1fr' : '1fr', gap: '4rem', alignItems: 'center' }}>
 
             {/* Left Column: Visual Area */}
             <div style={styles.visualColumn}>
               <div
                 style={styles.previewBox}
-                onClick={() => status === 'idle' && fileInputRef.current.click()}
+                onClick={() => status === 'idle' && !stlUrl && fileInputRef.current.click()}
               >
                 <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
+                <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
 
                 <AnimatePresence mode="wait">
-                  {!preview ? (
+                  {status === 'idle' && !preview && !stlUrl ? (
                     <motion.div
                       key="upload"
                       initial={{ opacity: 0 }}
@@ -197,6 +242,18 @@ const Terminal = () => {
                       </div>
                       <h3 style={styles.uploadTitle}>Choose an image</h3>
                       <p style={styles.uploadSubt}>Drag & drop or click to browse</p>
+                    </motion.div>
+                  ) : stlUrl ? (
+                    <motion.div
+                      key="viewer"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      style={{ width: '100%', height: '100%', position: 'relative' }}
+                    >
+                      <ModelViewer url={stlUrl} />
+                      <div style={styles.viewerHint}>
+                        <Box size={14} /> Click & drag to rotate
+                      </div>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -231,11 +288,18 @@ const Terminal = () => {
                 </AnimatePresence>
               </div>
 
-              {preview && status === 'idle' && (
+              {(preview || stlUrl) && (status === 'idle' || status === 'viewing') && (
                 <div style={styles.buttonRow}>
-                  <button onClick={handleGenerate} style={styles.magicBtn}>
-                    Start 3D Generation
-                  </button>
+                  {preview && (
+                    <button onClick={handleGenerate} style={styles.magicBtn}>
+                      Start 3D Generation
+                    </button>
+                  )}
+                  {stlUrl && (
+                    <a href={stlUrl} download="model.stl" style={{ ...styles.magicBtn, textDecoration: 'none' }}>
+                      <Download size={18} /> Download STL
+                    </a>
+                  )}
                   <button onClick={reset} style={styles.resetBtnIcon}>
                     <RefreshCcw size={20} />
                   </button>
@@ -245,11 +309,11 @@ const Terminal = () => {
 
             {/* Right Column: Interaction/Info */}
             <div style={styles.infoColumn}>
-              {preview ? (
+              {preview || stlUrl ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                   <div style={styles.studioHeader}>
                     <Box size={20} color={primaryTeal} />
-                    <span style={styles.studioBadge}>CREATIVE STUDIO</span>
+                    <span style={styles.studioBadge}>{stlUrl && !file ? '3D PREVIEWER' : 'CREATIVE STUDIO'}</span>
                   </div>
 
                   <div style={styles.stepGrid}>
@@ -259,7 +323,7 @@ const Terminal = () => {
                       { id: 'finalizing', label: '3. Final Smoothing', desc: 'Polishing your model for printing' }
                     ].map((step, idx) => {
                       const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
-                      const isDone = status === 'success' || (status === 'generating' && idx === 0);
+                      const isDone = (status === 'success' || status === 'viewing') || (status === 'generating' && idx === 0);
 
                       return (
                         <div key={idx} style={{
@@ -310,6 +374,13 @@ const Terminal = () => {
                     style={styles.selectImageBtn}
                   >
                     <ImageIcon size={18} /> Choose Project Image
+                  </button>
+
+                  <button
+                    onClick={() => stlInputRef.current.click()}
+                    style={{ ...styles.selectImageBtn, background: 'transparent', marginTop: '-1.5rem' }}
+                  >
+                    <Box size={18} /> View Existing STL
                   </button>
 
                   <p style={styles.emptyDesc}>
@@ -585,5 +656,13 @@ const styles = {
     letterSpacing: '1.5px',
     color: '#70e4de',
     opacity: 0.75
+  },
+
+  viewerHint: {
+    position: 'absolute', bottom: '1.5rem', left: '50%', transform: 'translateX(-50%)',
+    background: 'rgba(0,0,0,0.6)', padding: '0.6rem 1.2rem', borderRadius: 100,
+    fontSize: '0.75rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem',
+    backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)',
+    pointerEvents: 'none'
   }
 };
