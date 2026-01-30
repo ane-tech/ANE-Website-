@@ -85,19 +85,22 @@ try:
     # ADVANCED POST-PROCESSING FOR PRECISION
     print("Post-processing for ultra-smooth precision...")
     try:
-        # 1. DELETE FLOATING BACKGROUND (Keep only the largest object)
-        print(">>> Cleaning floating background artifacts...")
+        # 1. KEEP ALL SIGNIFICANT COMPONENTS (Fixes the Apple leaf issue)
+        print(">>> Identifying and preserving object components...")
+        import trimesh
         components = mesh.split(only_watertight=False)
         if len(components) > 1:
-            mesh = max(components, key=lambda x: x.area)
-            print(f">>> Cleaned {len(components)-1} background fragments.")
+            # Keep parts that are at least 3% of the largest part's volume/area
+            max_area = max(c.area for c in components)
+            significant_parts = [c for c in components if c.area > (max_area * 0.03)]
+            mesh = trimesh.util.concatenate(significant_parts)
+            print(f">>> Preserved {len(significant_parts)} major components (Cleaned {len(components) - len(significant_parts)} fragments).")
 
-        # 2. Laplacian Smoothing (Removes 'Step' effects and neural noise)
+        # 2. Laplacian Smoothing (Neural noise reduction)
         import trimesh.smoothing
-        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=10)
+        mesh = trimesh.smoothing.filter_laplacian(mesh, iterations=15)
         
-        # 3. FIX ORIENTATION (Make the model 'Stand Up')
-        # We rotate 90 degrees around the X-axis to align the character with the Z-up plane
+        # 3. FIX ORIENTATION
         import numpy as np
         mesh.apply_transform(trimesh.transformations.rotation_matrix(np.pi/2, [1, 0, 0]))
 

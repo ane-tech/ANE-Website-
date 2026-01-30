@@ -100,39 +100,29 @@ const Hero = memo(() => (
 const ModelViewer = ({ url }) => {
   const geom = useLoader(STLLoader, url);
   return (
-    <Canvas shadows camera={{ position: [5, 5, 5], fov: 40 }}>
-      <ambientLight intensity={0.7} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2} castShadow />
+    <Canvas
+      shadows
+      camera={{ position: [5, 5, 5], fov: 40 }}
+      gl={{ preserveDrawingBuffer: true }}
+    >
+      <ambientLight intensity={0.8} />
+      <spotLight position={[15, 15, 15]} angle={0.15} penumbra={1} intensity={2} castShadow />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} />
 
       <Stage adjustCamera intensity={0.6} environment="city" preset="rembrandt" shadows={false}>
         <Center top>
-          <mesh geometry={geom} castShadow receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
+          <mesh geometry={geom} castShadow receiveShadow>
             <meshStandardMaterial
-              color="#fcfcfc"
+              color="#ffffff"
               metalness={0.1}
-              roughness={0.5}
+              roughness={0.4}
               side={THREE.DoubleSide}
             />
           </mesh>
         </Center>
       </Stage>
 
-      <Grid
-        infiniteGrid
-        cellSize={1}
-        cellThickness={1}
-        sectionSize={5}
-        sectionThickness={1.5}
-        sectionColor="#444"
-        cellColor="#222"
-        fadeDistance={40}
-      />
-
-      <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
-        <GizmoViewport axisColors={['#ff3e3e', '#3fff3e', '#3e3eff']} labelColor="white" />
-      </GizmoHelper>
-
-      <OrbitControls makeDefault />
+      <OrbitControls makeDefault enableDamping dampingFactor={0.05} />
     </Canvas>
   );
 };
