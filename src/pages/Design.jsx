@@ -228,8 +228,15 @@ const Terminal = () => {
       clearInterval(progressInterval);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Generation failed: ${errorText}`);
+        let errorMsg = "Generation failed";
+        try {
+          const errorData = await response.json();
+          errorMsg = errorData.message || errorMsg;
+        } catch (e) {
+          const text = await response.text();
+          errorMsg = text.substring(0, 100) || errorMsg;
+        }
+        throw new Error(errorMsg);
       }
 
       const blob = await response.blob();
@@ -443,8 +450,15 @@ const Terminal = () => {
                         <div style={styles.progressSection}>
                           <div style={styles.progressText}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                              <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
-                              <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>This may take up to 2 minutes</span>
+                              <span style={{ color: primaryTeal, fontWeight: 700 }}>
+                                {progress < 30 ? 'Uploading Visuals...' :
+                                  progress < 70 ? 'Building Geometry...' :
+                                    progress < 95 ? 'Polishing Surface...' :
+                                      'Finalizing STL File...'}
+                              </span>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>
+                                {progress > 98 ? 'Almost there! Optimizing mesh...' : 'This may take up to 2 minutes'}
+                              </span>
                             </div>
                             <span style={{ fontSize: '1.2rem', fontWeight: 200 }}>{Math.round(progress)}%</span>
                           </div>

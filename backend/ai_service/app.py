@@ -59,4 +59,8 @@ async def generate_3d(image: UploadFile = File(...)):
         )
     except Exception as e:
         print(f"Error: {str(e)}")
-        return {"status": "error", "message": str(e)}
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": str(e)}
+        )
