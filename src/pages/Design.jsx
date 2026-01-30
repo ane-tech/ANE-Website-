@@ -17,7 +17,8 @@ import {
   Box,
   CheckCircle2,
   AlertCircle,
-  Eye
+  Eye,
+  X as CloseIcon
 } from 'lucide-react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stage, Center, Grid, GizmoHelper, GizmoViewport } from '@react-three/drei';
@@ -164,8 +165,9 @@ const Terminal = () => {
       const url = URL.createObjectURL(selectedFile);
       setStlUrl(url);
       setPreview(null);
+      setFile(null); // Clear image file if viewing existing STL
       setResult(url);
-      setStatus('viewing');
+      setStatus('viewing_full');
     }
   };
 
@@ -221,6 +223,8 @@ const Terminal = () => {
     setResult(null);
   };
 
+  const isFullView = status === 'viewing_full';
+
   return (
     <section style={styles.studioWrap}>
       <motion.div
@@ -232,187 +236,212 @@ const Terminal = () => {
       >
         <div style={styles.studioBlur} />
 
-        {/* Main Content Area */}
         <div style={styles.studioContent}>
-          <div style={{ display: 'grid', gridTemplateColumns: preview || stlUrl ? '1fr 1.1fr' : '1fr', gap: '4rem', alignItems: 'center' }}>
-
-            {/* Left Column: Visual Area */}
-            <div style={styles.visualColumn}>
-              <div
-                style={styles.previewBox}
-                onClick={() => status === 'idle' && !stlUrl && fileInputRef.current.click()}
+          <AnimatePresence mode="wait">
+            {isFullView ? (
+              <motion.div
+                key="full-view"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                style={styles.fullViewerArea}
               >
-                <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
-                <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
-
-                <AnimatePresence mode="wait">
-                  {status === 'idle' && !preview && !stlUrl ? (
-                    <motion.div
-                      key="upload"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.8 }}
-                      exit={{ opacity: 0 }}
-                      style={styles.uploadState}
-                    >
-                      <div style={styles.uploadIconCircle}>
-                        <Upload size={32} />
-                      </div>
-                      <h3 style={styles.uploadTitle}>Choose an image</h3>
-                      <p style={styles.uploadSubt}>Drag & drop or click to browse</p>
-                    </motion.div>
-                  ) : stlUrl ? (
-                    <motion.div
-                      key="viewer"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      style={{ width: '100%', height: '100%', position: 'relative' }}
-                    >
-                      <ModelViewer url={stlUrl} />
-                      <div style={styles.viewerHint}>
-                        <Box size={14} /> Click & drag to rotate
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="image"
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      style={{ width: '100%', height: '100%', padding: '2rem' }}
-                    >
-                      <img src={preview} alt="Input" style={styles.mainImage} />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Status Overlays */}
-                <AnimatePresence>
-                  {status === 'success' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={styles.successOverlay}>
-                      <div style={styles.successIcon}>
-                        <CheckCircle2 size={40} />
-                      </div>
-                      <h4 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem' }}>Model Ready</h4>
-                      <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                        <a href={result} download="model.stl" style={styles.downloadBtn}>
-                          <Download size={18} /> Get STL
-                        </a>
-                        <button onClick={reset} style={styles.resetBtnSmall}>
-                          <RefreshCcw size={18} />
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {(preview || stlUrl) && (status === 'idle' || status === 'viewing') && (
-                <div style={styles.buttonRow}>
-                  {preview && (
-                    <button onClick={handleGenerate} style={styles.magicBtn}>
-                      Start 3D Generation
-                    </button>
-                  )}
-                  {stlUrl && (
-                    <a href={stlUrl} download="model.stl" style={{ ...styles.magicBtn, textDecoration: 'none' }}>
-                      <Download size={18} /> Download STL
-                    </a>
-                  )}
-                  <button onClick={reset} style={styles.resetBtnIcon}>
-                    <RefreshCcw size={20} />
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Right Column: Interaction/Info */}
-            <div style={styles.infoColumn}>
-              {preview || stlUrl ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                {/* Header with Cancel */}
+                <div style={styles.viewerHeader}>
                   <div style={styles.studioHeader}>
                     <Box size={20} color={primaryTeal} />
-                    <span style={styles.studioBadge}>{stlUrl && !file ? '3D PREVIEWER' : 'CREATIVE STUDIO'}</span>
+                    <span style={styles.studioBadge}>{file ? 'GENERATED MESH' : '3D PREVIEWER'}</span>
                   </div>
+                  <button onClick={() => setStatus(file ? 'success' : 'idle')} style={styles.cancelBtn}>
+                    <CloseIcon size={24} />
+                  </button>
+                </div>
 
-                  <div style={styles.stepGrid}>
-                    {[
-                      { id: 'uploading', label: '1. Analyzing Image', desc: 'Detecting your object\'s shape' },
-                      { id: 'generating', label: '2. Building 3D Model', desc: 'Creating the digital structure' },
-                      { id: 'finalizing', label: '3. Final Smoothing', desc: 'Polishing your model for printing' }
-                    ].map((step, idx) => {
-                      const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
-                      const isDone = (status === 'success' || status === 'viewing') || (status === 'generating' && idx === 0);
+                {/* Main 3D Stage */}
+                <div style={styles.mainViewerContainer}>
+                  <ModelViewer url={stlUrl} />
 
-                      return (
-                        <div key={idx} style={{
-                          ...styles.stepCard,
-                          borderColor: isActive ? primaryTeal : isDone ? '#22c55e' : 'rgba(255,255,255,0.05)',
-                          background: isActive ? 'rgba(112, 228, 222, 0.03)' : 'transparent',
-                          opacity: isDone || isActive ? 1 : 0.4
-                        }}>
-                          <div style={{ ...styles.stepLabel, color: isActive ? primaryTeal : isDone ? '#22c55e' : '#fff' }}>
-                            {step.label}
-                          </div>
-                          <div style={styles.stepDesc}>{step.desc}</div>
-                          {isActive && <motion.div layoutId="activeStep" style={styles.activeIndicator} />}
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {/* Footer Controls for Generated Models */}
+                  {file && (
+                    <div style={styles.viewerFooterControls}>
+                      <a href={result} download="model.stl" style={styles.downloadBtn}>
+                        <Download size={18} /> Download STL
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="default-view"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ display: 'grid', gridTemplateColumns: preview ? '1fr 1.1fr' : '1fr', gap: '4rem', alignItems: 'center' }}
+              >
+                {/* Left Column: Visual Area */}
+                <div style={styles.visualColumn}>
+                  <div
+                    style={styles.previewBox}
+                    onClick={() => status === 'idle' && fileInputRef.current.click()}
+                  >
+                    <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handleFileChange} />
+                    <input type="file" ref={stlInputRef} hidden accept=".stl" onChange={handleStlUpload} />
 
-                  {(status === 'uploading' || status === 'generating') && (
-                    <div style={styles.progressSection}>
-                      <div style={styles.progressText}>
-                        <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
-                        <span>{Math.round(progress)}%</span>
-                      </div>
-                      <div style={styles.progressBarBg}>
+                    <AnimatePresence mode="wait">
+                      {status === 'idle' && !preview ? (
                         <motion.div
-                          animate={{ width: `${progress}%` }}
-                          style={styles.progressBarFill}
-                        />
+                          key="upload"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 0.8 }}
+                          exit={{ opacity: 0 }}
+                          style={styles.uploadState}
+                        >
+                          <div style={styles.uploadIconCircle}>
+                            <Upload size={32} />
+                          </div>
+                          <h3 style={styles.uploadTitle}>Choose an image</h3>
+                          <p style={styles.uploadSubt}>Drag & drop or click to browse</p>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="image"
+                          initial={{ scale: 0.9, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          style={{ width: '100%', height: '100%', padding: '2rem' }}
+                        >
+                          <img src={preview} alt="Input" style={styles.mainImage} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Status Overlays */}
+                    <AnimatePresence>
+                      {status === 'success' && (
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={styles.successOverlay}>
+                          <div style={styles.successIcon}>
+                            <CheckCircle2 size={40} />
+                          </div>
+                          <h4 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem' }}>Model Ready</h4>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '220px', marginTop: '1.5rem' }}>
+                            <a href={result} download="model.stl" style={{ ...styles.downloadBtn, width: '100%', justifyContent: 'center' }}>
+                              <Download size={18} /> Download STL
+                            </a>
+                            <button onClick={() => setStatus('viewing_full')} style={{ ...styles.view3dBtn, width: '100%' }}>
+                              <Eye size={18} /> View 3D Model
+                            </button>
+                            <button onClick={reset} style={styles.reloadThinBtn}>
+                              <RefreshCcw size={16} /> Reload Studio
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {preview && status === 'idle' && (
+                    <div style={styles.buttonRow}>
+                      <button onClick={handleGenerate} style={styles.magicBtn}>
+                        Start 3D Generation
+                      </button>
+                      <button onClick={reset} style={styles.resetBtnIcon}>
+                        <RefreshCcw size={20} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Interaction/Info */}
+                <div style={styles.infoColumn}>
+                  {preview ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                      <div style={styles.studioHeader}>
+                        <Box size={20} color={primaryTeal} />
+                        <span style={styles.studioBadge}>CREATIVE STUDIO</span>
+                      </div>
+
+                      <div style={styles.stepGrid}>
+                        {[
+                          { id: 'uploading', label: '1. Analyzing Image', desc: 'Detecting your object\'s shape' },
+                          { id: 'generating', label: '2. Building 3D Model', desc: 'Creating the digital structure' },
+                          { id: 'finalizing', label: '3. Final Smoothing', desc: 'Polishing your model for printing' }
+                        ].map((step, idx) => {
+                          const isActive = (status === step.id) || (status === 'uploading' && idx === 0) || (status === 'generating' && idx === 1);
+                          const isDone = (status === 'success') || (status === 'generating' && idx === 0);
+
+                          return (
+                            <div key={idx} style={{
+                              ...styles.stepCard,
+                              borderColor: isActive ? primaryTeal : isDone ? '#22c55e' : 'rgba(255,255,255,0.05)',
+                              background: isActive ? 'rgba(112, 228, 222, 0.03)' : 'transparent',
+                              opacity: isDone || isActive ? 1 : 0.4
+                            }}>
+                              <div style={{ ...styles.stepLabel, color: isActive ? primaryTeal : isDone ? '#22c55e' : '#fff' }}>
+                                {step.label}
+                              </div>
+                              <div style={styles.stepDesc}>{step.desc}</div>
+                              {isActive && <motion.div layoutId="activeStep" style={styles.activeIndicator} />}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {(status === 'uploading' || status === 'generating') && (
+                        <div style={styles.progressSection}>
+                          <div style={styles.progressText}>
+                            <span style={{ color: primaryTeal, fontWeight: 700 }}>AI is working...</span>
+                            <span>{Math.round(progress)}%</span>
+                          </div>
+                          <div style={styles.progressBarBg}>
+                            <motion.div
+                              animate={{ width: `${progress}%` }}
+                              style={styles.progressBarFill}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {status === 'error' && (
+                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={styles.errorCard}>
+                          <AlertCircle size={20} />
+                          <div>
+                            <div style={{ fontWeight: 600 }}>Connection Interrupted</div>
+                            <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Please check your internet and try again</div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={styles.emptyStateContainer}>
+                      <button
+                        onClick={() => fileInputRef.current.click()}
+                        style={styles.selectImageBtn}
+                      >
+                        <ImageIcon size={18} /> Choose Project Image
+                      </button>
+
+                      <button
+                        onClick={() => stlInputRef.current.click()}
+                        style={{ ...styles.selectImageBtn, background: 'transparent', marginTop: '-1.5rem' }}
+                      >
+                        <Box size={18} /> View Existing STL
+                      </button>
+
+                      <p style={styles.emptyDesc}>
+                        Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
+                      </p>
+
+                      <div style={styles.tagRow}>
+                        <span style={styles.tag}>STL Format</span>
+                        <span style={styles.tag}>3D Print Ready</span>
+                        <span style={styles.tag}>AI Powered</span>
                       </div>
                     </div>
                   )}
-
-                  {status === 'error' && (
-                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} style={styles.errorCard}>
-                      <AlertCircle size={20} />
-                      <div>
-                        <div style={{ fontWeight: 600 }}>Connection Interrupted</div>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Please check your internet and try again</div>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
-              ) : (
-                <div style={styles.emptyStateContainer}>
-                  <button
-                    onClick={() => fileInputRef.current.click()}
-                    style={styles.selectImageBtn}
-                  >
-                    <ImageIcon size={18} /> Choose Project Image
-                  </button>
-
-                  <button
-                    onClick={() => stlInputRef.current.click()}
-                    style={{ ...styles.selectImageBtn, background: 'transparent', marginTop: '-1.5rem' }}
-                  >
-                    <Box size={18} /> View Existing STL
-                  </button>
-
-                  <p style={styles.emptyDesc}>
-                    Turn your creative visions into physical reality. ANE uses advanced neural networks to build your 3D assets instantly.
-                  </p>
-
-                  <div style={styles.tagRow}>
-                    <span style={styles.tag}>STL Format</span>
-                    <span style={styles.tag}>3D Print Ready</span>
-                    <span style={styles.tag}>AI Powered</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
     </section>
@@ -681,5 +710,21 @@ const styles = {
     fontSize: '0.75rem', color: '#fff', display: 'flex', alignItems: 'center', gap: '0.6rem',
     backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.1)',
     pointerEvents: 'none'
+  },
+
+  fullViewerArea: { position: 'relative', width: '100%', height: '650px', display: 'flex', flexDirection: 'column' },
+  viewerHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' },
+  mainViewerContainer: { flex: 1, position: 'relative', background: 'rgba(0,0,0,0.2)', borderRadius: 32, overflow: 'hidden' },
+  cancelBtn: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', width: 44, height: 44, borderRadius: 12, display: 'grid', placeItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' },
+  viewerFooterControls: { position: 'absolute', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', zIndex: 10 },
+
+  view3dBtn: {
+    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16,
+    color: '#fff', padding: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.8rem',
+    justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s ease'
+  },
+  reloadThinBtn: {
+    background: 'transparent', border: 'none', color: '#666', fontSize: '0.8rem',
+    display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', cursor: 'pointer', marginTop: '0.5rem'
   }
 };
